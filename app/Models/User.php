@@ -75,4 +75,9 @@ class User extends Authenticatable
     {
         return $this->attributes['visibility'] === 'private';
     }
+
+    public function getAvatarAttribute()
+    {
+        return asset($this->attributes['avatar']);
+    }
 }

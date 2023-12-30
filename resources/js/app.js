@@ -3,7 +3,7 @@ import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - MemoryDazzle` : "MemoryDazzle"),
+    title: (v) => (v ? `${v} - MemoryDazzle` : "MemoryDazzle"),
     resolve: (name) => {
         const pages = import.meta.glob("./Pages/**/*.vue", { eager: true });
         return pages[`./Pages/${name}.vue`];

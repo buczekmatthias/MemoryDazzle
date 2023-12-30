@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AppController;
+use App\Http\Controllers\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('app');
+Route::middleware('auth')->group(function () {
+    Route::get('/security/logout', [SecurityController::class, 'logout'])->name('logout');
+
+    Route::get('/', [AppController::class, 'homepage'])->name('homepage');
+});
+
+Route::middleware('guest')->prefix('security')->name('security.')->controller(SecurityController::class)->group(function () {
+    Route::get('/login', 'login')->name('login');
+    Route::post('/login', 'handleLogin');
+
+    Route::get('/register', 'register')->name('register');
+    Route::post('/register', 'handleRegister');
+
+    Route::get('/reset-password', 'resetPassword')->name('resetPassword');
 });
