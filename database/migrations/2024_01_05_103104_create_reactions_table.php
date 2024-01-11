@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_files', function (Blueprint $table) {
+        Schema::create('reactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('filename');
-            $table->integer('size');
-            $table->string('mimetype');
-            $table->foreignUuid('post_id')->constrained('posts');
+            $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('CASCADE');
+            $table->foreignUuid('post_id')->constrained('posts')->onDelete('CASCADE');
+            $table->string('reaction');
+            $table->string('reaction_name');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('post_files');
+        Schema::dropIfExists('reactions');
     }
 };

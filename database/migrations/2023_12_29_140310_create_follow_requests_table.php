@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('follow_requests', function (Blueprint $table) {
-            $table->foreignUuid('target_id')->constrained('users');
-            $table->foreignUuid('sender_id')->constrained('users');
+            $table->foreignUuid('target_id')->constrained('users')->onDelete('CASCADE');
+            $table->foreignUuid('sender_id')->constrained('users')->onDelete('CASCADE');
             $table->timestamp('sent_at')->default(now('UTC'));
         });
     }

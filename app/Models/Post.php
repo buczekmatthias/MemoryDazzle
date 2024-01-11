@@ -13,6 +13,11 @@ class Post extends Model
         'content',
     ];
 
+    public function author()
+    {
+        return $this->group()->owner();
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class);
@@ -20,7 +25,7 @@ class Post extends Model
 
     public function reactions()
     {
-        return $this->belongsToMany(User::class, 'user_post_reactions', 'user_id', 'post_id');
+        return $this->hasMany(Reaction::class);
     }
 
     public function comments()
@@ -31,5 +36,22 @@ class Post extends Model
     public function files()
     {
         return $this->hasMany(PostFile::class);
+    }
+
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['created_at'])->format('M d, Y H:i');
+    }
+
+    public function getPostReactions()
+    {
+        return $this->reactions()
+            ->selectRaw(
+                'reaction, reaction_name, COUNT(user) as reaction_count, CASE WHEN MAX(CASE WHEN user_id = ? THEN 1 ELSE 0 END) = 1 THEN TRUE ELSE FALSE END AS user_reacted',
+                [auth()->user()->id]
+            )
+            ->groupBy('reaction', 'reaction_name')
+            ->get()
+            ->toArray();
     }
 }

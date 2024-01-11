@@ -1,5 +1,8 @@
 <template>
-    <div>Reset password</div>
+    <div>
+        <p>Reset password</p>
+        <p>Implementation skipped</p>
+    </div>
 </template>
 
 <script setup></script>

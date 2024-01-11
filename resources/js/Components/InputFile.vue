@@ -2,7 +2,7 @@
     <label
         :class="
             twMerge(
-                'flex flex-col items-center justify-center border-4 border-dashed border-gray-400 text-gray-400 !bg-opacity-10 p-6 cursor-pointer duration-300',
+                'flex flex-col items-center justify-center rounded-lg border-4 border-dashed border-gray-400 text-gray-400 !bg-opacity-10 p-6 cursor-pointer duration-300',
                 errors.length > 0
                     ? 'border-red-600 bg-red-600 text-red-600'
                     : '',
@@ -19,6 +19,8 @@
             @change="handleFileChange"
             :required="required"
             :accept="accepted"
+            :multiple="limit > 1"
+            ref="inp"
         />
         <span class="text-xl font-semibold">{{ label }}</span>
         <span v-if="required === false">(Optional)</span>
@@ -27,7 +29,14 @@
             v-if="errors.length > 0 && !hasImage"
             >{{ errors[0] }}</span
         >
-        <span v-if="hasImage" class="text-lg mt-2">File selected</span>
+        <span v-if="hasImage" class="text-lg mt-2"
+            >{{
+                $refs.inp.files.length > 1
+                    ? `${$refs.inp.files.length} files`
+                    : "File"
+            }}
+            selected</span
+        >
     </label>
 </template>
 
@@ -35,19 +44,30 @@
 import { ref } from "vue";
 import { twMerge } from "tailwind-merge";
 
-defineProps({
+const props = defineProps({
     label: String,
     required: { type: Boolean, default: false },
     errors: { type: Array, default: [] },
     accepted: String,
+    limit: {
+        type: Number,
+        default: 1,
+    },
 });
+
+const inp = ref(null);
 
 const hasImage = ref(false);
 
 const emit = defineEmits(["update:modelValue"]);
 
 const handleFileChange = (e) => {
-    hasImage.value = e.target.files.length > 0 ? true : false;
-    emit("update:modelValue", e.target.files[0]);
+    if (inp.value.files.length <= props.limit) {
+        hasImage.value = e.target.files.length > 0 ? true : false;
+        emit(
+            "update:modelValue",
+            props.limit === 1 ? e.target.files[0] : e.target.files
+        );
+    }
 };
 </script>

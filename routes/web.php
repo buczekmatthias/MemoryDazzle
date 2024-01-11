@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\SecurityController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,12 +17,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth')->group(function () {
-    Route::get('/security/logout', [SecurityController::class, 'logout'])->name('logout');
-
-    Route::get('/', [AppController::class, 'homepage'])->name('homepage');
-});
-
 Route::middleware('guest')->prefix('security')->name('security.')->controller(SecurityController::class)->group(function () {
     Route::get('/login', 'login')->name('login');
     Route::post('/login', 'handleLogin');
@@ -29,4 +25,22 @@ Route::middleware('guest')->prefix('security')->name('security.')->controller(Se
     Route::post('/register', 'handleRegister');
 
     Route::get('/reset-password', 'resetPassword')->name('resetPassword');
+});
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/security/logout', [SecurityController::class, 'logout'])->name('logout');
+
+    Route::controller(AppController::class)->group(function () {
+        Route::get('/', 'homepage')->name('homepage');
+        Route::get('/download/{postFile}', 'downloadFile')->name('download');
+    });
+
+    Route::controller(PostController::class)->name('posts.')->prefix('/posts')->group(function () {
+        Route::post('/store', 'store')->name('store');
+    });
+
+    Route::controller(UserController::class)->name('user.')->group(function () {
+        Route::get('/{user:username}', 'profile')->name('profile');
+    });
 });

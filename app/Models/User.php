@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -63,7 +61,7 @@ class User extends Authenticatable
 
     public function reactions()
     {
-        return $this->belongsToMany(Post::class, 'user_post_reactions', 'post_id', 'user_id');
+        return $this->hasMany(Reaction::class);
     }
 
     public function comments()
@@ -78,6 +76,6 @@ class User extends Authenticatable
 
     public function getAvatarAttribute()
     {
-        return asset($this->attributes['avatar']);
+        return $this->attributes['avatar'] ? asset($this->attributes['avatar']) : null;
     }
 }

@@ -14,8 +14,10 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@ant-design/icons-vue": "^7.0.1",
         "@inertiajs/vue3": "^1.0.14",
         "@vitejs/plugin-vue": "^5.0.0",
-        "tailwind-merge": "^2.2.0"
+        "tailwind-merge": "^2.2.0",
+        "vue3-emoji-picker": "^1.1.8"
     }
 }
