@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,11 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(PostController::class)->name('posts.')->prefix('/posts')->group(function () {
         Route::post('/store', 'store')->name('store');
+    });
+
+    Route::controller(ReactionController::class)->name('reactions.')->prefix('/reactions')->group(function () {
+        Route::post('/add', 'addReaction')->name('add');
+        Route::delete('/{post_id}/{reaction_name}/remove', 'removeReaction')->name('remove');
     });
 
     Route::controller(UserController::class)->name('user.')->group(function () {

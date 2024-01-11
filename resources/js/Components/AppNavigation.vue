@@ -1,10 +1,10 @@
 <template>
     <div
-        class="flex flex-col justify-between items-center bg-indigo-700 fixed top-0 left-0 h-screen p-5 duration-150 md:sticky max-md:z-40"
+        class="flex flex-col items-center bg-indigo-700 fixed top-0 left-0 h-screen p-5 duration-150 md:sticky max-md:z-40"
         :class="showMenu ? 'max-md:translate-x-0' : 'max-md:-translate-x-full'"
     >
         <p class="text-white text-4xl font-semibold">mD</p>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 my-auto">
             <Link
                 v-for="(link, i) in links"
                 :key="i"
@@ -16,26 +16,27 @@
                 <component :is="link.icon"></component>
             </Link>
         </div>
-        <div class="flex flex-col items-center gap-4">
-            <Link
-                :href="`/${$page.props.user.username}`"
-                data-tooltip="Profile"
-                class="link tooltip"
-            >
-                <img
-                    :src="$page.props.user.avatar"
-                    alt="User avatar"
-                    class="h-12 w-12 rounded-lg object-cover"
-                />
-            </Link>
-            <Link
-                href="/security/logout"
-                data-tooltip="Logout"
-                class="link tooltip"
-            >
-                <LogoutOutlined />
-            </Link>
-        </div>
+        <Link
+            :href="`/${$page.props.user.username}`"
+            data-tooltip="Profile"
+            class="link tooltip mb-3"
+            :class="{ active: $page.component.startsWith('User') }"
+        >
+            <img
+                :src="$page.props.user.avatar"
+                alt="User avatar"
+                v-if="$page.props.user.avatar"
+                class="h-12 w-12 object-cover rounded-lg"
+            />
+            <UserOutlined class="bg-slate-200/75 rounded-full p-1.5" v-else />
+        </Link>
+        <Link
+            href="/security/logout"
+            data-tooltip="Logout"
+            class="link tooltip"
+        >
+            <LogoutOutlined />
+        </Link>
     </div>
     <MenuOutlined class="mobileMenu" @click="toggleMenu" v-if="!showMenu" />
     <CloseOutlined class="mobileMenu" @click="toggleMenu" v-else />
@@ -44,6 +45,7 @@
 <script setup>
 import { ref } from "vue";
 import {
+    UserOutlined,
     MenuOutlined,
     CloseOutlined,
     HomeOutlined,
@@ -75,7 +77,7 @@ const links = ref([
 }
 
 .link {
-    @apply text-white text-2xl leading-[0] duration-300 hover:bg-white !bg-opacity-10 p-4 rounded-md flex items-center gap-4 relative;
+    @apply text-white text-2xl leading-[0] duration-300 hover:bg-white !bg-opacity-10 p-4 rounded-md flex items-center justify-center gap-4 w-full;
 }
 
 .link.active {

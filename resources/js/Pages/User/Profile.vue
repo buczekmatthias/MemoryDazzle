@@ -1,5 +1,9 @@
 <template>
-    <div></div>
+    <AppLayout>
+        <p>Profile</p>
+    </AppLayout>
 </template>
 
-<script setup></script>
+<script setup>
+import AppLayout from "../../Layouts/AppLayout.vue";
+</script>

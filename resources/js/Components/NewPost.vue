@@ -63,7 +63,7 @@ const page = usePage();
 const showFileInput = ref(false);
 
 const form = useForm({
-    content: null,
+    content: "",
     group: page.props.groups[0].id,
     files: null,
 });

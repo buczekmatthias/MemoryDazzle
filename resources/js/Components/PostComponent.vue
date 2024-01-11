@@ -60,7 +60,7 @@
                 </div>
             </div>
         </div>
-        <ReactionsComponent :reactions="post.reactions" />
+        <ReactionsComponent :reactions="post.reactions" :post_id="post.id" />
     </div>
 </template>
 
