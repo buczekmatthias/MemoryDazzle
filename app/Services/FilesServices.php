@@ -30,6 +30,13 @@ class FilesServices
         }
     }
 
+    public static function postDeleteFiles(string $path): void
+    {
+        $files = Storage::allFiles($path);
+        Storage::delete($files);
+        Storage::deleteDirectory($path);
+    }
+
     public static function getFilesGroupedByType(Post $post): array
     {
         $files = $post->files;
@@ -50,6 +57,26 @@ class FilesServices
         }
 
         return $groupedData;
+    }
+
+    public static function getFilesList(Post $post): array
+    {
+        $files = $post->files;
+
+        $list = [];
+
+        foreach ($files as $file) {
+            $type = explode("/", $file->mimetype)[0];
+
+            $list[] = [
+                'id' => $file->id,
+                'type' => in_array($type, ['image', 'video']) ? $type : 'file',
+                'filename' => $file->filename,
+                'name' => $file->getFullFileName()
+            ];
+        }
+
+        return $list;
     }
 
     public static function downloadFile(PostFile $file)

@@ -2,7 +2,10 @@
     <AppLayout>
         <div class="flex flex-col gap-4 p-3" v-if="post">
             <div class="flex items-center gap-4">
-                <LeftOutlined class="text-xl" @click="redirectBack" />
+                <LeftOutlined
+                    class="text-xl leading-none"
+                    @click="redirectBack"
+                />
                 <p class="text-3xl font-semibold">Post</p>
             </div>
             <div class="flex flex-col shadow-md rounded-lg bg-white">
@@ -27,13 +30,16 @@
                         <p class="text-gray-400 text-sm">
                             {{ post.created_at }}
                         </p>
-                        <EditOutlined
+                        <Link
+                            :href="`/posts/edit/${post.id}`"
                             v-if="
                                 $page.props.user.username ===
                                 post.group.owner.username
                             "
-                            class="text-lg leading-none text-indigo-700 cursor-pointer ml-auto"
-                        />
+                            class="text-lg leading-none text-indigo-700 ml-auto"
+                        >
+                            <EditOutlined />
+                        </Link>
                         <DeleteOutlined
                             v-if="
                                 $page.props.user.username ===
@@ -54,25 +60,13 @@
                             :src="img.filename"
                             :key="i"
                             class="w-full h-full object-cover cursor-pointer"
-                            @click="
-                                handleFileSelectPreview(
-                                    'image',
-                                    img.filename,
-                                    img.id
-                                )
-                            "
+                            @click="handleFileSelectPreview('image', img)"
                         />
                         <div
                             class="relative h-full w-full overflow-hidden cursor-pointer"
                             v-for="(vid, i) in post.files.video"
                             :key="i"
-                            @click="
-                                handleFileSelectPreview(
-                                    'video',
-                                    vid.filename,
-                                    vid.id
-                                )
-                            "
+                            @click="handleFileSelectPreview('video', vid)"
                         >
                             <video
                                 :src="vid.filename"
@@ -135,10 +129,7 @@ import PostComments from "../../Components/PostComments.vue";
 import UserCard from "../../Components/UserCard.vue";
 
 const props = defineProps({
-    post: {
-        type: Object,
-        validator: (v) => typeof v === Object || v === null,
-    },
+    post: Object,
 });
 
 const gridFilesCount = ref(
@@ -159,11 +150,10 @@ const redirectBack = () => {
     router.get("/");
 };
 
-const handleFileSelectPreview = (type, link, id) => {
+const handleFileSelectPreview = (type, file) => {
     fileToPreview.value = {
         type: type,
-        link: link,
-        id: id,
+        ...file,
     };
 
     showFilePreview.value = true;

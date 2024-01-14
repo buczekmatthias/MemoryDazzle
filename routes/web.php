@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::controller(PostController::class)->name('posts.')->prefix('/posts')->group(function () {
         Route::post('/store', 'store')->name('store');
         Route::delete('/delete/{post}', 'delete')->name('delete');
+        Route::get('/edit/{post}', 'edit')->name('edit');
+        Route::post('/edit/{post}', 'handleEdit');
         Route::get('/{post}', 'view')->name('view');
     });
 

@@ -32,7 +32,7 @@ class PostFile extends Model
 
     public function getFileContent()
     {
-        $filename = explode(".", $this->attributes['filename']);
+        $filename = explode(".", $this->getFullFileName());
 
         return [
             'id' => $this->attributes['id'],
@@ -45,6 +45,21 @@ class PostFile extends Model
     {
         $post = $this->post()->first();
 
-        return "{$post->group->owner->id}/{$post->id}/{$this->attributes['filename']}";
+        return "{$post->group->owner->id}/{$post->id}/{$this->getFullFileName()}";
+    }
+
+    public function getFileExtension()
+    {
+        return explode(".", $this->getFullFileName())[1];
+    }
+
+    public function getFileName()
+    {
+        return explode(".", $this->getFullFileName())[0];
+    }
+
+    public function getFullFileName()
+    {
+        return $this->attributes['filename'];
     }
 }

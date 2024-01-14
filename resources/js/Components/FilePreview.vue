@@ -5,13 +5,13 @@
     >
         <img
             v-if="file.type === 'image'"
-            :src="file.link"
+            :src="file.filename"
             alt="Preview of image"
             class="preview-file"
         />
         <video
             v-else
-            :src="file.link"
+            :src="file.filename"
             controls
             autoplay
             class="preview-file"

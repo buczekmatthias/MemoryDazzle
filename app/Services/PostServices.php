@@ -71,6 +71,19 @@ class PostServices
             });
     }
 
+    public static function getPostEditContent(string $post_id): array
+    {
+        $post = Post::where('id', $post_id)
+            ->select('id', 'content', 'group_id')
+            ->first();
+
+        $postAsArray = $post->toArray();
+
+        $postAsArray['files'] = FilesServices::getFilesList($post);
+
+        return $postAsArray;
+    }
+
     public static function getHomepageFeed(): LengthAwarePaginator
     {
         return self::getPostsContent([
@@ -109,10 +122,45 @@ class PostServices
     public static function deletePost(Post $post): RedirectResponse
     {
         if (auth()->user()->id === $post->author()->id) {
+            FilesServices::postDeleteFiles("public/" . auth()->user()->id . "/{$post->id}");
+            $post->files()->delete();
+            $post->reactions()->delete();
+            $post->comments()->delete();
             $post->delete();
         }
 
         return redirect()->route('homepage', status: 303);
+    }
+
+    public static function updatePost(Post $post, Request $request): RedirectResponse
+    {
+        $valid = $request->validate([
+            'content' => 'required|string',
+            'group_id' => 'required|uuid|exists:groups,id',
+            'files' => 'nullable',
+            'files.*' => 'array'
+        ]);
+
+        if ($valid) {
+            $post->content = $valid['content'];
+            $post->group()->associate(Group::where('id', $valid['group_id'])->first());
+
+            if (sizeof($post->files) !== $valid['files']) {
+                $newIds = array_column($valid['files'], 'id');
+                foreach ($post->files as $file) {
+                    if (!in_array($file->id, $newIds)) {
+                        FilesServices::deleteFile([$file->getFileExtension()], "public/" . auth()->user()->id . "/{$post->id}", $file->getFileName());
+                        $post->files()->where('id', $file->id)->delete();
+                    }
+                }
+            }
+
+            $post->save();
+
+            return back();
+        }
+
+        return back()->with(['error' => "Data validation failed. Please try again later"]);
     }
 
     public static function storeFiles(string $postId, object $file): array

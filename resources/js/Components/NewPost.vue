@@ -11,18 +11,11 @@
             picker-type="textarea"
             v-model:text="form.content"
         />
-        <select
+        <GroupSelect
             v-model="form.group"
-            class="outline-none border border-solid border-gray-300 rounded-lg cursor-pointer w-1/2 p-1"
-        >
-            <option
-                v-for="(group, i) in $page.props.groups"
-                :value="group.id"
-                :key="group.id"
-            >
-                {{ group.icon }} {{ group.name }}
-            </option>
-        </select>
+            width="w-1/2"
+            :groups="$page.props.groups"
+        />
         <div class="flex items-center gap-2">
             <FileOutlined
                 @click="handleInputFile"
@@ -57,6 +50,7 @@ import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 import InputFile from "./InputFile.vue";
 import ButtonComponent from "./ButtonComponent.vue";
+import GroupSelect from "./GroupSelect.vue";
 
 const page = usePage();
 
@@ -71,6 +65,7 @@ const form = useForm({
 const handleFormSubmit = () => {
     form.post(page.props.store_post_route, {
         onSuccess: () => {
+            handleInputFile();
             // No other way found, author of picker not responding
             const contentArea = document.querySelector(
                 ".v3-emoji-picker-textarea"

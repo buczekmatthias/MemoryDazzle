@@ -14,11 +14,16 @@
             :id="id"
             :placeholder="placeholder || label"
             class="border border-solid border-gray-300 rounded-md p-2 outline-none focus:border-gray-500"
-            :class="
+            :class="[
                 errors.length > 0
                     ? 'border-red-600 text-red-600 focus:border-red-400'
-                    : ''
-            "
+                    : '',
+                readonly
+                    ? 'cursor-not-allowed bg-slate-500/15 border-slate-500'
+                    : '',
+            ]"
+            :value="value"
+            :readonly="readonly"
             @input="handleInputValueChange"
         />
         <p class="text-sm text-red-600 font-semibold" v-if="errors.length > 0">
@@ -35,6 +40,8 @@ defineProps({
     required: { type: Boolean, default: true },
     type: { type: String, default: "text" },
     errors: { type: Array, default: [] },
+    value: { type: String, default: "" },
+    readonly: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["update:modelValue"]);
