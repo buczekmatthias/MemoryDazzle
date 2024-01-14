@@ -12,4 +12,9 @@ class PostController extends Controller
     {
         return PostServices::storePost($request);
     }
+
+    public function view(string $post, Request $request)
+    {
+        return inertia('Post/View', ['post' => PostServices::getPost($post)]);
+    }
 }

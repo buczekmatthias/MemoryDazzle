@@ -63,7 +63,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const handleFileChange = (e) => {
     if (inp.value.files.length <= props.limit) {
-        hasImage.value = e.target.files.length > 0 ? true : false;
+        hasImage.value = e.target.files.length > 0;
         emit(
             "update:modelValue",
             props.limit === 1 ? e.target.files[0] : e.target.files

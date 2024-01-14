@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SecurityController;
@@ -39,6 +40,12 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(PostController::class)->name('posts.')->prefix('/posts')->group(function () {
         Route::post('/store', 'store')->name('store');
+        Route::get('/{post}', 'view')->name('view');
+    });
+
+    Route::controller(CommentController::class)->name('comments.')->prefix('/comments')->group(function () {
+        Route::post('/create', 'createComment')->name('create');
+        Route::delete('/delete/{comment}', 'deleteComment')->name('delete');
     });
 
     Route::controller(ReactionController::class)->name('reactions.')->prefix('/reactions')->group(function () {

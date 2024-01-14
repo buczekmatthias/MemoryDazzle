@@ -1,6 +1,18 @@
 <template>
     <div class="flex flex-wrap gap-1 p-3 relative">
         <p
+            class="w-full text-indigo-700 text-end cursor-pointer"
+            v-if="reactions.length > 0"
+            @click="showReactionsPreview = true"
+        >
+            View reactions
+        </p>
+        <ReactionsPreview
+            v-if="showReactionsPreview"
+            :reactions="reactions"
+            @closePreview="showReactionsPreview = false"
+        />
+        <p
             class="reaction bg-slate-100 border border-slate-200 hover:bg-slate-200"
             @click="showPicker = !showPicker"
         >
@@ -31,6 +43,7 @@ import { ref } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { SmileOutlined, PlusOutlined } from "@ant-design/icons-vue";
 import ReactionPicker from "./ReactionPicker.vue";
+import ReactionsPreview from "./ReactionsPreview.vue";
 
 const props = defineProps({
     reactions: Object,
@@ -38,6 +51,7 @@ const props = defineProps({
 });
 
 const showPicker = ref(false);
+const showReactionsPreview = ref(false);
 
 const handleAddReaction = (index) => {
     const entry = props.reactions[index];
@@ -50,12 +64,6 @@ const handleAddReaction = (index) => {
 
     addForm.post(`/reactions/add`, {
         preserveScroll: true,
-        onSuccess: () => {
-            increaseReaction(index);
-        },
-        onError: () => {
-            decreaseReaction(index);
-        },
     });
 };
 
@@ -64,27 +72,8 @@ const handleRemoveReaction = (index) => {
         `/reactions/${props.post_id}/${props.reactions[index].reaction_name}/remove`,
         {
             preserveScroll: true,
-            onSuccess: () => {
-                decreaseReaction(index);
-                if (props.reactions[index].reaction_count === 0) {
-                    props.reactions.splice(index, 1);
-                }
-            },
-            onError: () => {
-                increaseReaction(index);
-            },
         }
     );
-};
-
-const increaseReaction = (index) => {
-    props.reactions[index].user_reacted = true;
-    props.reactions[index].reaction_count++;
-};
-
-const decreaseReaction = (index) => {
-    props.reactions[index].user_reacted = false;
-    props.reactions[index].reaction_count--;
 };
 
 const handleReactionClick = (index) => {

@@ -1,6 +1,7 @@
 <template>
     <div
-        class="flex flex-col gap-4 w-full bg-white shadow-md rounded-lg p-3 font-light"
+        class="flex flex-col gap-4 w-full bg-white rounded-lg p-3 font-light"
+        :class="sticky ? 'sticky bottom-0' : 'shadow-md'"
     >
         <div class="flex items-center justify-center gap-1">
             <span>Showing</span>
@@ -11,7 +12,10 @@
             <span>of total</span>
             <span class="font-semibold">{{ pagination.total }}</span>
         </div>
-        <div class="flex items-center justify-center gap-4">
+        <div
+            class="flex items-center justify-center gap-4"
+            v-if="pagination.last_page > 1"
+        >
             <Link
                 :href="pagination.first_page_url"
                 class="py-1.5 px-4 rounded-md"
@@ -52,6 +56,10 @@ import { Link, router } from "@inertiajs/vue3";
 
 const props = defineProps({
     pagination: Object,
+    sticky: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const handlePageChange = (e) => {

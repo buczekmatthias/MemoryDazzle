@@ -23,4 +23,18 @@ class ReactionServices
 
         return back(303);
     }
+
+    public static function getPostReactions(Post $post): array
+    {
+        $reactions = $post->getPostReactions();
+        $reactionGroups = $post->getPostReactionGroups();
+
+        foreach ($reactionGroups as &$group) {
+            foreach ($reactions[$group['reaction_name']] as $r) {
+                $group['users'][] = array_slice($r['user'], 1);
+            }
+        }
+
+        return $reactionGroups;
+    }
 }

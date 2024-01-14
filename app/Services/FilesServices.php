@@ -40,7 +40,10 @@ class FilesServices
             $type = explode("/", $file->mimetype)[0];
 
             if (in_array($type, ['image', 'video'])) {
-                $groupedData[$type][] = $file->filename;
+                $groupedData[$type][] = [
+                    'id' => $file->id,
+                    'filename' => $file->filename
+                ];
             } else {
                 $groupedData['file'][] = $file->getFileContent();
             }

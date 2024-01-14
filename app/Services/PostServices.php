@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Comment;
 use App\Models\Group;
 use App\Models\Post;
 use Carbon\Carbon;
@@ -18,6 +19,30 @@ class PostServices
             'store_post_route' => route('posts.store'),
             'groups' => GroupServices::getUserGroupsList()
         ];
+    }
+
+    public static function getPost(string $postId): array
+    {
+        $post = Post::where('id', $postId)
+            ->select('id', 'content', 'group_id', 'created_at')
+            ->with([
+                'group:id,icon,name,user_id',
+                'group.owner:id,displayname,username,avatar',
+            ])
+            ->first();
+
+        $postAsArray = $post->toArray();
+
+        $postAsArray['files'] = FilesServices::getFilesGroupedByType($post);
+        $postAsArray['reactions'] = ReactionServices::getPostReactions($post);
+        $postAsArray['comments'] = Comment::where('post_id', $post->id)
+            ->select('id', 'content', 'created_at', 'user_id')
+            ->with('author:id,displayname,username,avatar')
+            ->orderBy('comments.created_at', 'DESC')
+            ->paginate(20)
+            ->through(fn ($item) => $item->toArray());
+
+        return $postAsArray;
     }
 
     public static function getPostsContent(array $ids): LengthAwarePaginator
@@ -37,8 +62,7 @@ class PostServices
             ->through(function ($item) {
                 $itemAsArray = $item->toArray();
                 $itemAsArray['files'] = FilesServices::getFilesGroupedByType($item);
-                $itemAsArray['reactions'] = $item->getPostReactions();
-
+                $itemAsArray['reactions'] = ReactionServices::getPostReactions($item);
                 return $itemAsArray;
             });
     }

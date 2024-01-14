@@ -43,7 +43,7 @@ class Post extends Model
         return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['created_at'])->format('M d, Y H:i');
     }
 
-    public function getPostReactions()
+    public function getPostReactionGroups()
     {
         return $this->reactions()
             ->selectRaw(
@@ -52,6 +52,16 @@ class Post extends Model
             )
             ->groupBy('reaction', 'reaction_name')
             ->get()
+            ->toArray();
+    }
+
+    public function getPostReactions()
+    {
+        return $this->reactions()
+            ->select('user_id', 'reaction', 'reaction_name')
+            ->with('user:id,displayname,username,avatar')
+            ->get()
+            ->groupBy('reaction_name')
             ->toArray();
     }
 }

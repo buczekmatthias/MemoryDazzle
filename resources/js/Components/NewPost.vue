@@ -69,8 +69,15 @@ const form = useForm({
 });
 
 const handleFormSubmit = () => {
-    form.post(page.props.store_post_route);
-    form.reset();
+    form.post(page.props.store_post_route, {
+        onSuccess: () => {
+            // No other way found, author of picker not responding
+            const contentArea = document.querySelector(
+                ".v3-emoji-picker-textarea"
+            );
+            contentArea.value = "";
+        },
+    });
     handleInputFile();
 };
 

@@ -31,5 +31,9 @@ class AppServiceProvider extends ServiceProvider
                 ? Session::get('errors')->getBag('default')->getMessages()
                 : [];
         });
+
+        Inertia::share('referer', function (Request $request) {
+            return $request->headers->get('referer');
+        });
     }
 }

@@ -12,7 +12,7 @@
             </p>
         </div>
         <a
-            :href="`/download/${props.file.id}`"
+            :href="`/download/${file.id}`"
             target="_blank"
             class="ml-auto text-2xl leading-[0]"
         >
