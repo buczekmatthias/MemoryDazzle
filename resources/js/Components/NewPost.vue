@@ -77,8 +77,10 @@ const handleFormSubmit = () => {
             );
             contentArea.value = "";
         },
+        onError: () => {
+            handleInputFile();
+        },
     });
-    handleInputFile();
 };
 
 const handleInputFile = () => {

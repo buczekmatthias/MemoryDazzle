@@ -21,7 +21,7 @@ class PostServices
         ];
     }
 
-    public static function getPost(string $postId): array
+    public static function getPost(string $postId): array|null
     {
         $post = Post::where('id', $postId)
             ->select('id', 'content', 'group_id', 'created_at')
@@ -30,6 +30,10 @@ class PostServices
                 'group.owner:id,displayname,username,avatar',
             ])
             ->first();
+
+        if (!$post) {
+            return null;
+        }
 
         $postAsArray = $post->toArray();
 
@@ -100,6 +104,15 @@ class PostServices
         }
 
         return back()->withErrors(array_merge($valid, ['generic' => 'Posting failed']));
+    }
+
+    public static function deletePost(Post $post): RedirectResponse
+    {
+        if (auth()->user()->id === $post->author()->id) {
+            $post->delete();
+        }
+
+        return redirect()->route('homepage', status: 303);
     }
 
     public static function storeFiles(string $postId, object $file): array

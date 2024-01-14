@@ -1,16 +1,16 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col gap-4 p-3">
+        <div class="flex flex-col gap-4 p-3" v-if="post">
             <div class="flex items-center gap-4">
                 <LeftOutlined class="text-xl" @click="redirectBack" />
                 <p class="text-3xl font-semibold">Post</p>
             </div>
             <div class="flex flex-col shadow-md rounded-lg bg-white">
-                <div class="flex items-center p-3">
+                <div class="flex items-center justify-between p-3">
                     <UserCard :user="post.group.owner" />
                     <Link
                         href=""
-                        class="text-indigo-700 font-semibold ml-auto"
+                        class="text-indigo-700 font-semibold"
                         :class="
                             $page.props.user.username ===
                             post.group.owner.username
@@ -19,20 +19,30 @@
                         "
                         >#{{ post.group.name }} {{ post.group.icon }}</Link
                     >
-                    <EditOutlined
-                        v-if="
-                            $page.props.user.username ===
-                            post.group.owner.username
-                        "
-                        class="text-lg leading-none"
-                    />
                 </div>
                 <div
                     class="flex flex-col gap-2 py-3 border-y border-solid border-y-gray-200"
                 >
-                    <p class="text-gray-400 text-sm mx-3">
-                        {{ post.created_at }}
-                    </p>
+                    <div class="flex items-center gap-6 px-3">
+                        <p class="text-gray-400 text-sm">
+                            {{ post.created_at }}
+                        </p>
+                        <EditOutlined
+                            v-if="
+                                $page.props.user.username ===
+                                post.group.owner.username
+                            "
+                            class="text-lg leading-none text-indigo-700 cursor-pointer ml-auto"
+                        />
+                        <DeleteOutlined
+                            v-if="
+                                $page.props.user.username ===
+                                post.group.owner.username
+                            "
+                            class="text-lg leading-none text-red-700 cursor-pointer"
+                            @click="handlePostDelete"
+                        />
+                    </div>
                     <p class="mx-3">{{ post.content }}</p>
                     <div
                         v-if="gridFilesCount > 0"
@@ -93,13 +103,26 @@
                 <PostComments :comments="post.comments" :post_id="post.id" />
             </div>
         </div>
+        <div
+            class="flex flex-col items-center shadow-md rounded-lg bg-white p-4 py-6 my-auto mx-4"
+            v-else
+        >
+            <p class="text-4xl font-semibold">Post not found</p>
+            <p class="mt-2 mb-6">Possibly got deleted</p>
+            <Link
+                href="/"
+                class="bg-indigo-700 text-white p-3 rounded-lg duration-300 hover:bg-indigo-600"
+                >Get back to homepage</Link
+            >
+        </div>
     </AppLayout>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { Link, router, usePage } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import {
+    DeleteOutlined,
     EditOutlined,
     LeftOutlined,
     PlayCircleOutlined,
@@ -111,15 +134,16 @@ import FilePreview from "../../Components/FilePreview.vue";
 import PostComments from "../../Components/PostComments.vue";
 import UserCard from "../../Components/UserCard.vue";
 
-const page = usePage();
-
 const props = defineProps({
-    post: Object,
+    post: {
+        type: Object,
+        validator: (v) => typeof v === Object || v === null,
+    },
 });
 
 const gridFilesCount = ref(
-    (props.post.files.image?.length || 0) +
-        (props.post.files.video?.length || 0)
+    (props.post?.files.image?.length || 0) +
+        (props.post?.files.video?.length || 0)
 );
 const gridStyles = ref([
     "grid-cols-1 grid-rows-1 [&>*]:rounded-lg",
@@ -132,7 +156,7 @@ const showFilePreview = ref(false);
 const fileToPreview = ref(null);
 
 const redirectBack = () => {
-    router.get(page.props.referer);
+    router.get("/");
 };
 
 const handleFileSelectPreview = (type, link, id) => {
@@ -143,6 +167,10 @@ const handleFileSelectPreview = (type, link, id) => {
     };
 
     showFilePreview.value = true;
+};
+
+const handlePostDelete = () => {
+    router.delete(`/posts/delete/${props.post.id}`);
 };
 </script>
 

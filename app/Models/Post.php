@@ -15,7 +15,7 @@ class Post extends Model
 
     public function author()
     {
-        return $this->group()->owner();
+        return $this->group->owner;
     }
 
     public function group()
