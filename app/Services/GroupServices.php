@@ -2,12 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\Group;
 use Illuminate\Database\Eloquent\Collection;
 
 class GroupServices
 {
-    public static function getUserGroupsList(): Collection
+    public static function getUserGroupsList(string $user_id, bool $withCount = false): Collection
     {
-        return auth()->user()->groups()->select('id', 'icon', 'name')->get();
+        $groups = Group::where('user_id', $user_id)->select('id', 'icon', 'name');
+
+        if ($withCount) {
+            $groups->withCount('posts');
+        }
+
+        return $groups->get();
     }
 }

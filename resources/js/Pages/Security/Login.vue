@@ -30,7 +30,9 @@
                     >Forgot password?</Link
                 >
             </div>
-            <ButtonComponent>Sign in</ButtonComponent>
+            <ButtonComponent :disabled="form.processing"
+                >Sign in</ButtonComponent
+            >
         </form>
     </SecurityLayout>
 </template>

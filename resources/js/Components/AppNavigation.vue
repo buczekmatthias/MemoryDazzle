@@ -10,17 +10,20 @@
                 :key="i"
                 :href="link.link"
                 :data-tooltip="link.tooltip"
-                class="link tooltip"
+                class="link"
                 :class="{ active: $page.component.startsWith(link.component) }"
             >
                 <component :is="link.icon"></component>
+                <span class="text-lg">{{ link.text }}</span>
             </Link>
         </div>
         <Link
             :href="`/${$page.props.user.username}`"
             data-tooltip="Profile"
-            class="link tooltip mb-3"
-            :class="{ active: $page.component.startsWith('User') }"
+            class="link mb-3"
+            :class="{
+                active: $page.url === `/${$page.props.user.username}`,
+            }"
         >
             <img
                 :src="$page.props.user.avatar"
@@ -29,6 +32,7 @@
                 class="h-12 w-12 object-cover rounded-lg"
             />
             <UserOutlined class="bg-slate-200/75 rounded-full p-1.5" v-else />
+            <span class="text-lg">Profile</span>
         </Link>
         <Link
             href="/security/logout"
@@ -61,17 +65,19 @@ const links = ref([
     {
         link: "/",
         icon: HomeOutlined,
-        tooltip: "Homepage",
+        text: "Homepage",
+        component: "Homepage",
+    },
+    {
+        link: "/",
+        icon: HomeOutlined,
+        text: "Homepage",
         component: "Homepage",
     },
 ]);
 </script>
 
 <style lang="postcss">
-.tooltip {
-    @apply after:text-white after:text-base after:content-[attr(data-tooltip)];
-}
-
 .mobileMenu {
     @apply fixed top-3 right-3 shadow-md bg-white rounded-md p-2 text-xl leading-[0] cursor-pointer md:hidden;
 }

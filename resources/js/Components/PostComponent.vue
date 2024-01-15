@@ -1,5 +1,8 @@
 <template>
-    <div class="flex flex-col shadow-md rounded-lg bg-white">
+    <div
+        class="flex flex-col rounded-lg bg-white"
+        :class="hasShadow ? 'shadow-md' : 'border border-solid border-gray-300'"
+    >
         <div class="flex justify-between items-center p-3">
             <UserCard :user="post.group.owner" />
             <Link href="" class="text-indigo-700 font-semibold"
@@ -59,6 +62,10 @@ import UserCard from "./UserCard.vue";
 
 defineProps({
     post: Object,
+    hasShadow: {
+        type: Boolean,
+        default: true,
+    },
 });
 </script>
 

@@ -78,4 +78,9 @@ class User extends Authenticatable
     {
         return $this->attributes['avatar'] ? asset($this->attributes['avatar']) : null;
     }
+
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['created_at'])->format('M d, Y H:i');
+    }
 }

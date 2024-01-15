@@ -17,7 +17,7 @@ class PostServices
     {
         return [
             'store_post_route' => route('posts.store'),
-            'groups' => GroupServices::getUserGroupsList()
+            'groups' => GroupServices::getUserGroupsList(auth()->user()->id)
         ];
     }
 
@@ -39,12 +39,7 @@ class PostServices
 
         $postAsArray['files'] = FilesServices::getFilesGroupedByType($post);
         $postAsArray['reactions'] = ReactionServices::getPostReactions($post);
-        $postAsArray['comments'] = Comment::where('post_id', $post->id)
-            ->select('id', 'content', 'created_at', 'user_id')
-            ->with('author:id,displayname,username,avatar')
-            ->orderBy('comments.created_at', 'DESC')
-            ->paginate(20)
-            ->through(fn ($item) => $item->toArray());
+        $postAsArray['comments'] = CommentServices::getPostComments($post->id);
 
         return $postAsArray;
     }

@@ -22,8 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Inertia::share('user', function (Request $request) {
-            return $request->user() ? array_merge($request->user()->only('displayname', 'username', 'avatar'), ['isPrivate' => $request->user()->isPrivateProfile()]) : null;
+        Inertia::share('user', function () {
+            $user = auth()->user();
+            return $user ? array_merge($user->only('displayname', 'username', 'avatar'), ['isPrivate' => $user->isPrivateProfile()]) : null;
         });
 
         Inertia::share('errors', function () {

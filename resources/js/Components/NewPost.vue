@@ -16,7 +16,10 @@
             width="w-1/2"
             :groups="$page.props.groups"
         />
-        <div class="flex items-center gap-2">
+        <form
+            @submit.prevent="handleFormSubmit"
+            class="flex items-center gap-2"
+        >
             <FileOutlined
                 @click="handleInputFile"
                 class="text-xl leading-[0] cursor-pointer hover:bg-slate-300/40 p-2 rounded-full"
@@ -32,10 +35,11 @@
                     v-model="form.files"
                 />
             </div>
-            <ButtonComponent classes="px-5 py-2" :callback="handleFormSubmit"
-                >Post</ButtonComponent
-            >
-        </div>
+            <ButtonComponent classes="px-5 py-2" :disabled="form.processing">
+                <span v-if="form.processing">Posting...</span>
+                <span v-else>Post</span>
+            </ButtonComponent>
+        </form>
         <p class="text-red-600 font-semibold" v-if="form.errors.generic">
             {{ form.errors.generic }}
         </p>
@@ -65,7 +69,7 @@ const form = useForm({
 const handleFormSubmit = () => {
     form.post(page.props.store_post_route, {
         onSuccess: () => {
-            handleInputFile();
+            showFileInput.value = false;
             // No other way found, author of picker not responding
             const contentArea = document.querySelector(
                 ".v3-emoji-picker-textarea"

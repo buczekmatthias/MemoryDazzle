@@ -6,10 +6,35 @@ use App\Models\User;
 
 class UserServices
 {
-    public static function getUserData(User $user): array
+    public static function getUserData(User $user, string $tab): array
     {
+        $currentUserId = auth()->user()->id;
+
+        $hasAccess = !($user->isPrivateProfile() && !$user->followedBy->contains($currentUserId) && $currentUserId !== $user->id);
+
+        $content = null;
+
+        if ($hasAccess) {
+            if ($tab === 'posts') {
+                $content = PostServices::getPostsContent([$user->id]);
+            } else if ($tab === 'comments') {
+                $content = CommentServices::getUserComments($user->id);
+            } else if ($tab === 'groups') {
+                $content = GroupServices::getUserGroupsList($user->id, true);
+            }
+        }
+
         return [
-            'user' => array_merge($user->only(['displayname', 'username', 'avatar']), ['isPrivate' => $user->isPrivateProfile()])
+            'tab' => $tab,
+            'hasAccess' => $hasAccess,
+            'status' => $user->followedBy->contains($currentUserId) ? 'following' : ($user->receivedFollowRequests->contains($currentUserId) ? 'pending' : 'follow'),
+            'profile' => $user
+                ->where('username', $user->username)
+                ->select('displayname', 'username', 'avatar', 'created_at')
+                ->withCount('comments', 'posts', 'following', 'followedBy', 'groups')
+                ->first()
+                ->toArray(),
+            'content' => $content,
         ];
     }
 

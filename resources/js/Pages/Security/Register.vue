@@ -42,7 +42,9 @@
                 v-model="form.avatar"
                 :errors="form.errors.avatar"
             />
-            <ButtonComponent>Create account</ButtonComponent>
+            <ButtonComponent :disabled="form.processing"
+                >Create account</ButtonComponent
+            >
         </form>
     </SecurityLayout>
 </template>

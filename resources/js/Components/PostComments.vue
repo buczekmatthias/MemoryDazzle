@@ -16,32 +16,20 @@
                 picker-type="textarea"
                 v-model:text="form.content"
             />
-            <ButtonComponent classes="px-5 py-2">Post</ButtonComponent>
+            <ButtonComponent classes="px-5 py-2" :disabled="form.processing">
+                <span v-if="form.processing">Posting...</span>
+                <span v-else>Post</span>
+            </ButtonComponent>
         </form>
         <div
             class="flex flex-col gap-2"
             v-if="Object.keys(comments.data).length > 0"
         >
-            <div
-                class="flex flex-col items-start gap-2 border border-solid border-gray-200 rounded-lg p-3"
+            <CommentComponent
                 v-for="(comment, i) in comments.data"
                 :key="i"
-            >
-                <div class="flex justify-between items-start w-full">
-                    <UserCard :user="comment.author" />
-                    <p class="text-gray-400 text-sm">
-                        {{ comment.created_at }}
-                    </p>
-                </div>
-                <p class="w-full">{{ comment.content }}</p>
-                <p
-                    class="text-red-600 text-sm cursor-pointer"
-                    v-if="comment.author.username === $page.props.user.username"
-                    @click="handleCommentDelete(comment.id)"
-                >
-                    Delete
-                </p>
-            </div>
+                :comment="comment"
+            />
             <Pagination :pagination="comments" :sticky="true" />
         </div>
         <p v-else>Nothing to show in this section</p>
@@ -53,7 +41,7 @@ import { router, useForm } from "@inertiajs/vue3";
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 import Pagination from "./Pagination.vue";
-import UserCard from "./UserCard.vue";
+import CommentComponent from "./CommentComponent.vue";
 import ButtonComponent from "./ButtonComponent.vue";
 
 const props = defineProps({

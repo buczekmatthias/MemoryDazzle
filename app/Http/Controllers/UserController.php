@@ -11,6 +11,6 @@ class UserController extends Controller
 {
     public function profile(User $user, Request $request)
     {
-        return inertia('User/Profile', [UserServices::getUserData($user)]);
+        return inertia('User/Profile', UserServices::getUserData($user, $request->get('tab', 'posts')));
     }
 }

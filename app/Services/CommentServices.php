@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CommentServices
 {
@@ -33,5 +34,23 @@ class CommentServices
         }
 
         return back()->withErrors($valid);
+    }
+
+    public static function getPostComments(string $post_id): LengthAwarePaginator
+    {
+        return Comment::where('post_id', $post_id)
+            ->select('id', 'content', 'created_at', 'user_id')
+            ->with('author:id,displayname,username,avatar')
+            ->orderBy('comments.created_at', 'DESC')
+            ->paginate(20);
+    }
+
+    public static function getUserComments(string $user_id): LengthAwarePaginator
+    {
+        return Comment::where('user_id', $user_id)
+            ->select('id', 'content', 'created_at', 'user_id', 'post_id')
+            ->with('author:id,displayname,username,avatar')
+            ->orderBy('created_at', 'DESC')
+            ->paginate(20);
     }
 }

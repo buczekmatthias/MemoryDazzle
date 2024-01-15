@@ -33,7 +33,7 @@ class PostController extends Controller
 
         return inertia('Post/Edit', [
             'post' => PostServices::getPostEditContent($post->id),
-            'groups' => GroupServices::getUserGroupsList()
+            'groups' => GroupServices::getUserGroupsList(auth()->user()->id)
         ]);
     }
 
