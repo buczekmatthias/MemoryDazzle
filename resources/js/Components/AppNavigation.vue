@@ -11,7 +11,7 @@
                 :href="link.link"
                 :data-tooltip="link.tooltip"
                 class="link"
-                :class="{ active: $page.component.startsWith(link.component) }"
+                :class="{ active: link.active.includes($page.url) }"
             >
                 <component :is="link.icon"></component>
                 <span class="text-lg">{{ link.text }}</span>
@@ -22,7 +22,10 @@
             data-tooltip="Profile"
             class="link mb-3"
             :class="{
-                active: $page.url === `/${$page.props.user.username}`,
+                active: [
+                    `/${$page.props.user.username}`,
+                    `/${$page.props.user.username}?tab=posts`,
+                ].includes($page.url),
             }"
         >
             <img
@@ -34,12 +37,9 @@
             <UserOutlined class="bg-slate-200/75 rounded-full p-1.5" v-else />
             <span class="text-lg">Profile</span>
         </Link>
-        <Link
-            href="/security/logout"
-            data-tooltip="Logout"
-            class="link tooltip"
-        >
+        <Link href="/security/logout" data-tooltip="Logout" class="link">
             <LogoutOutlined />
+            <span class="text-lg">Logout</span>
         </Link>
     </div>
     <MenuOutlined class="mobileMenu" @click="toggleMenu" v-if="!showMenu" />
@@ -48,16 +48,20 @@
 
 <script setup>
 import { ref } from "vue";
+import { Link, usePage } from "@inertiajs/vue3";
 import {
     UserOutlined,
     MenuOutlined,
     CloseOutlined,
     HomeOutlined,
     LogoutOutlined,
+    FolderOutlined,
+    QuestionOutlined,
 } from "@ant-design/icons-vue";
-import { Link } from "@inertiajs/vue3";
 
 const showMenu = ref(false);
+
+const page = usePage();
 
 const toggleMenu = () => (showMenu.value = !showMenu.value);
 
@@ -66,13 +70,25 @@ const links = ref([
         link: "/",
         icon: HomeOutlined,
         text: "Homepage",
-        component: "Homepage",
+        active: ["/"],
     },
     {
-        link: "/",
-        icon: HomeOutlined,
-        text: "Homepage",
-        component: "Homepage",
+        link: "/users",
+        icon: UserOutlined,
+        text: "Users",
+        active: ["/users"],
+    },
+    {
+        link: `/${page.props.user.username}?tab=groups`,
+        icon: FolderOutlined,
+        text: "Groups",
+        active: [`/${page.props.user.username}?tab=groups`],
+    },
+    {
+        link: "/requests",
+        icon: QuestionOutlined,
+        text: "Requests",
+        active: ["/requests", "/requests?tab=received", "/requests?tab=sent"],
     },
 ]);
 </script>

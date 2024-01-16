@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->attributes['visibility'] === 'private';
     }
 
+    public function followingStatus(string $user_id)
+    {
+        return $this->followedBy->contains($user_id) ? 'Following' : ($this->receivedFollowRequests->contains($user_id) ? 'Requested' : 'Follow');
+    }
+
     public function getAvatarAttribute()
     {
         return $this->attributes['avatar'] ? asset($this->attributes['avatar']) : null;

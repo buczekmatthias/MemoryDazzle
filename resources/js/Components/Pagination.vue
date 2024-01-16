@@ -1,7 +1,7 @@
 <template>
     <div
         class="flex flex-col gap-4 w-full bg-white rounded-lg p-3 font-light"
-        :class="sticky ? 'sticky bottom-0' : 'shadow-md'"
+        :class="[sticky ? 'sticky bottom-0' : '', shadow ? 'shadow-md' : '']"
     >
         <div class="flex items-center justify-center gap-1">
             <span>Showing</span>
@@ -59,6 +59,10 @@ const props = defineProps({
     sticky: {
         type: Boolean,
         default: false,
+    },
+    shadow: {
+        type: Boolean,
+        default: true,
     },
 });
 

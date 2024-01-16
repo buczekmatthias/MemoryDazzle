@@ -34,40 +34,34 @@
                             v-if="
                                 profile.username === $page.props.user.username
                             "
-                            :callback="toggleEditProfileModal"
+                            @click="toggleEditProfileModal"
                         >
                             Edit profile
                         </ButtonComponent>
                         <ButtonComponent
                             class="my-3"
                             :class="
-                                ['following', 'pending'].includes(status)
+                                ['Following', 'Requested'].includes(status)
                                     ? 'bg-transparent border border-solid border-gray-300 !text-gray-400 hover:bg-gray-100/85'
                                     : ''
                             "
                             v-else
-                            :callback="handleFollowButton"
+                            @click="handleFollowButton"
                         >
-                            <span class="" v-if="status === 'following'"
-                                >Following</span
-                            >
-                            <span class="" v-else-if="status === 'pending'"
-                                >Requested follow</span
-                            >
-                            <span class="" v-else>Follow</span>
+                            {{ status }}
                         </ButtonComponent>
                     </div>
                     <div
                         class="flex items-center divide-x [&>*]:px-7"
                         v-if="hasAccess"
                     >
-                        <Link class="flex flex-col gap-2 items-center">
+                        <Link href="" class="flex flex-col gap-2 items-center">
                             <p class="font-semibold">Followers</p>
                             <p class="font-light">
                                 {{ profile.followed_by_count }}
                             </p>
                         </Link>
-                        <Link class="flex flex-col gap-2 items-center">
+                        <Link href="" class="flex flex-col gap-2 items-center">
                             <p class="font-semibold">Following</p>
                             <p class="font-light">
                                 {{ profile.following_count }}
@@ -127,31 +121,35 @@
                             Groups ({{ profile.groups_count }})
                         </Link>
                     </div>
-                    <div class="flex flex-col gap-3" v-if="tab === 'posts'">
-                        <PostComponent
-                            v-for="(post, i) in content.data"
-                            :post="post"
-                            :key="i"
-                            :hasShadow="false"
-                        />
-                        <Pagination :pagination="content" :sticky="true" />
+                    <div v-if="tab === 'posts'">
+                        <div class="flex flex-col gap-3" v-if="contentSize > 0">
+                            <PostComponent
+                                v-for="(post, i) in content.data"
+                                :post="post"
+                                :key="i"
+                                :hasShadow="false"
+                            />
+                            <Pagination :pagination="content" :shadow="false" />
+                        </div>
+                        <p v-else>This user has no posts</p>
                     </div>
-                    <div
-                        class="flex flex-col gap-3"
-                        v-else-if="tab === 'comments'"
-                    >
-                        <CommentComponent
-                            v-for="(comment, i) in content.data"
-                            :key="i"
-                            :comment="comment"
-                        />
-                        <Pagination :pagination="content" :sticky="true" />
+                    <div v-else-if="tab === 'comments'">
+                        <div class="flex flex-col gap-3" v-if="contentSize > 0">
+                            <CommentComponent
+                                v-for="(comment, i) in content.data"
+                                :key="i"
+                                :comment="comment"
+                            />
+                            <Pagination :pagination="content" :shadow="false" />
+                        </div>
+                        <p v-else>This user has no comments</p>
                     </div>
                     <div
                         class="flex flex-col gap-3"
                         v-else-if="tab === 'groups'"
                     >
                         <Link
+                            href=""
                             v-for="(group, i) in content"
                             :key="i"
                             class="flex justify-between border border-solid border-gray-300 rounded-lg p-3 duration-300 hover:bg-indigo-700/10"
@@ -189,6 +187,8 @@ const props = defineProps({
     hasAccess: Boolean,
     status: String,
 });
+
+const contentSize = ref(Object.keys(props.content?.data || {}).length);
 
 const toggleEditProfileModal = () => {
     showEditModal.value = !showEditModal.value;

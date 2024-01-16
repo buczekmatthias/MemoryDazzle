@@ -7,7 +7,6 @@
             )
         "
         :type="type"
-        @click="callback"
         :disabled="disabled"
     >
         <slot />
@@ -20,7 +19,6 @@ import { twMerge } from "tailwind-merge";
 defineProps({
     classes: { type: String, default: "" },
     type: { type: String, default: "submit" },
-    callback: { type: Function, default: null },
     disabled: Boolean,
 });
 </script>

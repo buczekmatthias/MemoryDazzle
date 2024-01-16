@@ -11,9 +11,7 @@ class UserServices
     {
         $currentUserId = auth()->user()->id;
 
-        $following = $user->followedBy->contains($currentUserId);
-
-        $hasAccess = !($user->isPrivateProfile() && !$following && $currentUserId !== $user->id);
+        $hasAccess = !($user->isPrivateProfile() && !$user->followedBy->contains($currentUserId) && $currentUserId !== $user->id);
 
         $content = null;
 
@@ -30,7 +28,7 @@ class UserServices
         return [
             'tab' => $tab,
             'hasAccess' => $hasAccess,
-            'status' => $following ? 'following' : ($user->receivedFollowRequests->contains($currentUserId) ? 'pending' : 'follow'),
+            'status' => $user->followingStatus($currentUserId),
             'profile' => array_merge(
                 $user
                     ->where('username', $user->username)
@@ -80,6 +78,41 @@ class UserServices
             } else {
                 $user->followedBy()->attach($currentUserId);
             }
+        }
+
+        return back();
+    }
+
+    public static function getListOfUsers(): array
+    {
+        return [
+            'users' => User::where('username', '<>', auth()->user()->username)->select('id', 'username', 'displayname', 'avatar', 'visibility')->orderBy('username')->paginate(50)->through(function ($user) {
+                $userAsArray = $user->toArray();
+
+                $userAsArray['status'] = $user->followingStatus(auth()->user()->id);
+                $userAsArray['isPrivate'] = $user->isPrivateProfile();
+
+                return $userAsArray;
+            })
+        ];
+    }
+
+    public static function getListOfRequests(string $tab)
+    {
+        if ($tab === 'received') {
+            return auth()->user()->receivedFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
+        } else if ($tab === 'sent') {
+            return auth()->user()->sentFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
+        }
+    }
+
+    public static function handleRequest(string $action, User $user): RedirectResponse
+    {
+        if ($action === 'accept') {
+            auth()->user()->followedBy()->attach($user->id);
+            auth()->user()->receivedFollowRequests()->where('target_id', $user->id)->detach();
+        } else if ($action === 'refuse') {
+            auth()->user()->receivedFollowRequests()->where('target_id', $user->id)->detach();
         }
 
         return back();

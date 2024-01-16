@@ -18,4 +18,22 @@ class UserController extends Controller
     {
         return UserServices::handleFollow($user);
     }
+
+    public function usersList()
+    {
+        return inertia('User/List', UserServices::getListOfUsers());
+    }
+
+    public function listFollowRequests(Request $request)
+    {
+        return inertia('User/Requests', [
+            'tab' => $request->get('tab', 'received'),
+            'requests' => UserServices::getListOfRequests($request->get('tab', 'received'))
+        ]);
+    }
+
+    public function handleFollowRequests(string $action, User $user)
+    {
+        return UserServices::handleRequest($action, $user);
+    }
 }
