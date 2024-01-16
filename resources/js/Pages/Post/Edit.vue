@@ -13,7 +13,7 @@
                     id="id"
                     label="Post id"
                     :readonly="true"
-                    :value="post.id"
+                    :placeholder="post.id"
                 />
                 <EmojiPicker
                     :lazy="true"

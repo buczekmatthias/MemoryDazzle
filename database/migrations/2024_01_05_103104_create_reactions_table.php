@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('reactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('CASCADE');
-            $table->foreignUuid('post_id')->constrained('posts')->onDelete('CASCADE');
+            $table->foreignUuid('user_id')->nullable()->constrained('users');
+            $table->foreignUuid('post_id')->constrained('posts');
             $table->string('reaction');
             $table->string('reaction_name');
             $table->timestamps();

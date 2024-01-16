@@ -41,12 +41,12 @@ class User extends Authenticatable
 
     public function sentFollowRequests()
     {
-        return $this->belongsToMany(User::class, 'follow_requests', 'target_id', 'sender_id');
+        return $this->belongsToMany(User::class, 'follow_requests', 'sender_id', 'target_id');
     }
 
     public function receivedFollowRequests()
     {
-        return $this->belongsToMany(User::class, 'follow_requests', 'sender_id', 'target_id');
+        return $this->belongsToMany(User::class, 'follow_requests', 'target_id', 'sender_id');
     }
 
     public function groups()

@@ -22,7 +22,6 @@
                     ? 'cursor-not-allowed bg-slate-500/15 border-slate-500'
                     : '',
             ]"
-            :value="value"
             :readonly="readonly"
             @input="handleInputValueChange"
         />
@@ -40,7 +39,6 @@ defineProps({
     required: { type: Boolean, default: true },
     type: { type: String, default: "text" },
     errors: { type: Array, default: [] },
-    value: { type: String, default: "" },
     readonly: { type: Boolean, default: false },
 });
 

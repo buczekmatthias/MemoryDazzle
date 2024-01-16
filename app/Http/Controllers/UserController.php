@@ -13,4 +13,9 @@ class UserController extends Controller
     {
         return inertia('User/Profile', UserServices::getUserData($user, $request->get('tab', 'posts')));
     }
+
+    public function handleFollow(User $user)
+    {
+        return UserServices::handleFollow($user);
+    }
 }

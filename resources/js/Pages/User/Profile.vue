@@ -46,6 +46,7 @@
                                     : ''
                             "
                             v-else
+                            :callback="handleFollowButton"
                         >
                             <span class="" v-if="status === 'following'"
                                 >Following</span
@@ -171,7 +172,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import { UserOutlined } from "@ant-design/icons-vue";
 import AppLayout from "../../Layouts/AppLayout.vue";
 import ButtonComponent from "../../Components/ButtonComponent.vue";
@@ -181,7 +182,7 @@ import CommentComponent from "../../Components/CommentComponent.vue";
 
 const showEditModal = ref(false);
 
-defineProps({
+const props = defineProps({
     profile: Object,
     content: Object,
     tab: String,
@@ -191,5 +192,20 @@ defineProps({
 
 const toggleEditProfileModal = () => {
     showEditModal.value = !showEditModal.value;
+};
+
+const handleFollowButton = () => {
+    const options = ref({});
+
+    if (props.status === "following" && props.profile.isPrivate) {
+        options.value = {
+            onBefore: () =>
+                confirm(
+                    "This profile is private. If you proceed, you'll lose access to it's content. Are you sure to unfollow?"
+                ),
+        };
+    }
+
+    router.post(`/follow/${props.profile.username}`, options.value);
 };
 </script>

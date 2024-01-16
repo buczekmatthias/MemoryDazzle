@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 
 class UserServices
 {
@@ -10,7 +11,9 @@ class UserServices
     {
         $currentUserId = auth()->user()->id;
 
-        $hasAccess = !($user->isPrivateProfile() && !$user->followedBy->contains($currentUserId) && $currentUserId !== $user->id);
+        $following = $user->followedBy->contains($currentUserId);
+
+        $hasAccess = !($user->isPrivateProfile() && !$following && $currentUserId !== $user->id);
 
         $content = null;
 
@@ -27,13 +30,18 @@ class UserServices
         return [
             'tab' => $tab,
             'hasAccess' => $hasAccess,
-            'status' => $user->followedBy->contains($currentUserId) ? 'following' : ($user->receivedFollowRequests->contains($currentUserId) ? 'pending' : 'follow'),
-            'profile' => $user
-                ->where('username', $user->username)
-                ->select('displayname', 'username', 'avatar', 'created_at')
-                ->withCount('comments', 'posts', 'following', 'followedBy', 'groups')
-                ->first()
-                ->toArray(),
+            'status' => $following ? 'following' : ($user->receivedFollowRequests->contains($currentUserId) ? 'pending' : 'follow'),
+            'profile' => array_merge(
+                $user
+                    ->where('username', $user->username)
+                    ->select('displayname', 'username', 'avatar', 'created_at')
+                    ->withCount('comments', 'posts', 'following', 'followedBy', 'groups')
+                    ->first()
+                    ->toArray(),
+                [
+                    'isPrivate' => $user->isPrivateProfile()
+                ]
+            ),
             'content' => $content,
         ];
     }
@@ -56,5 +64,24 @@ class UserServices
     public static function deleteAvatar(string $id): void
     {
         FilesServices::deleteFile(['jpeg', 'png', 'svg'], "public/{$id}", "pfp");
+    }
+
+    public static function handleFollow(User $user): RedirectResponse
+    {
+        $currentUserId = auth()->user()->id;
+
+        if ($user->followedBy->contains($currentUserId)) {
+            $user->followedBy()->where('follower_id', $currentUserId)->detach();
+        } else if ($user->receivedFollowRequests->contains($currentUserId)) {
+            $user->receivedFollowRequests()->where('target_id', $currentUserId)->detach();
+        } else {
+            if ($user->isPrivateProfile()) {
+                $user->receivedFollowRequests()->attach($currentUserId);
+            } else {
+                $user->followedBy()->attach($currentUserId);
+            }
+        }
+
+        return back();
     }
 }

@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::controller(UserController::class)->name('user.')->group(function () {
+        Route::post('/follow/{user:username}', 'handleFollow')->name('follow');
         Route::get('/{user:username}', 'profile')->name('profile');
     });
 });
