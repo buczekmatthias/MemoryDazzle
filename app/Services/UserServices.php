@@ -117,4 +117,28 @@ class UserServices
 
         return back();
     }
+
+    public static function getFollowingList(User $user, string $tab): array
+    {
+        $list = [
+            'tab' => $tab,
+            'user' => $user->username,
+            'users' => []
+        ];
+
+        if ($tab === 'followers') {
+            $list['users'] = $user->followedBy()->orderBy('started_at', 'DESC')->select('displayname', 'username', 'avatar')->paginate(50);
+        } else if ($tab === 'following') {
+            $list['users'] = $user->following()->orderBy('started_at', 'DESC')->select('id', 'username', 'displayname', 'avatar', 'visibility')->paginate(50)->through(function ($user) {
+                $userAsArray = $user->toArray();
+
+                $userAsArray['status'] = $user->followingStatus($user->id);
+                $userAsArray['isPrivate'] = $user->isPrivateProfile();
+
+                return $userAsArray;
+            });
+        }
+
+        return $list;
+    }
 }

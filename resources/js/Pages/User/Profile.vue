@@ -1,3 +1,5 @@
+<!-- TODO: Profile & groups management + groups displaying -->
+
 <template>
     <AppLayout>
         <div class="flex flex-col gap-4 p-3">
@@ -55,13 +57,19 @@
                         class="flex items-center divide-x [&>*]:px-7"
                         v-if="hasAccess"
                     >
-                        <Link href="" class="flex flex-col gap-2 items-center">
+                        <Link
+                            :href="`/${profile.username}/followers?tab=followers`"
+                            class="flex flex-col gap-2 items-center"
+                        >
                             <p class="font-semibold">Followers</p>
                             <p class="font-light">
                                 {{ profile.followed_by_count }}
                             </p>
                         </Link>
-                        <Link href="" class="flex flex-col gap-2 items-center">
+                        <Link
+                            :href="`/${profile.username}/followers?tab=following`"
+                            class="flex flex-col gap-2 items-center"
+                        >
                             <p class="font-semibold">Following</p>
                             <p class="font-light">
                                 {{ profile.following_count }}
@@ -148,15 +156,26 @@
                         class="flex flex-col gap-3"
                         v-else-if="tab === 'groups'"
                     >
-                        <Link
-                            href=""
+                        <div
                             v-for="(group, i) in content"
                             :key="i"
-                            class="flex justify-between border border-solid border-gray-300 rounded-lg p-3 duration-300 hover:bg-indigo-700/10"
+                            class="grid grid-cols-[1fr_auto] gap-4 items-center border border-solid border-gray-300 rounded-lg p-3 duration-300 hover:bg-indigo-700/10"
                         >
-                            <p>{{ group.icon }} {{ group.name }}</p>
-                            <p>{{ group.posts_count }} posts</p>
-                        </Link>
+                            <Link
+                                href=""
+                                class="flex justify-between pr-4 border-r border-solid border-r-gray-300"
+                            >
+                                <p>{{ group.icon }} {{ group.name }}</p>
+                                <p>{{ group.posts_count }} posts</p>
+                            </Link>
+                            <EditOutlined
+                                class="text-lg leading-[0] text-indigo-700 cursor-pointer"
+                                v-if="
+                                    group.owner.username ===
+                                    $page.props.user.username
+                                "
+                            />
+                        </div>
                     </div>
                 </div>
                 <div class="flex flex-col items-center gap-2 mt-3" v-else>
@@ -171,7 +190,7 @@
 <script setup>
 import { ref } from "vue";
 import { Link, router } from "@inertiajs/vue3";
-import { UserOutlined } from "@ant-design/icons-vue";
+import { EditOutlined, UserOutlined } from "@ant-design/icons-vue";
 import AppLayout from "../../Layouts/AppLayout.vue";
 import ButtonComponent from "../../Components/ButtonComponent.vue";
 import Pagination from "../../components/Pagination.vue";

@@ -95,7 +95,7 @@ const links = ref([
 
 <style lang="postcss">
 .mobileMenu {
-    @apply fixed top-3 right-3 shadow-md bg-white rounded-md p-2 text-xl leading-[0] cursor-pointer md:hidden;
+    @apply fixed top-3 right-3 shadow-md bg-white rounded-md p-2 text-xl leading-[0] cursor-pointer md:hidden z-50;
 }
 
 .link {

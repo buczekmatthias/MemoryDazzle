@@ -64,5 +64,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/{action}/{user:username}', 'handleFollowRequests')->name('handle');
         });
         Route::get('/{user:username}', 'profile')->name('profile');
+        Route::get('/{user:username}/followers', 'followers')->name('followers');
     });
 });

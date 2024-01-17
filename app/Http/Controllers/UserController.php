@@ -36,4 +36,11 @@ class UserController extends Controller
     {
         return UserServices::handleRequest($action, $user);
     }
+
+    public function followers(User $user, Request $request)
+    {
+        return inertia('User/Followers', [
+            'list' => UserServices::getFollowingList($user, $request->get('tab', 'following'))
+        ]);
+    }
 }

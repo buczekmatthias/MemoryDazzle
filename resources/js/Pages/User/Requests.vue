@@ -4,7 +4,7 @@
             <p class="text-3xl font-semibold">Follow requests</p>
             <div class="flex flex-col gap-4 bg-white rounded-xl shadow-md p-3">
                 <div
-                    class="sticky top-0 border-b border-solid border-b-gray-300 py-2 flex items-center gap-2"
+                    class="sticky top-0 bg-white border-b border-solid border-b-gray-300 py-2 flex items-center gap-2"
                 >
                     <Link
                         href="?tab=received"
