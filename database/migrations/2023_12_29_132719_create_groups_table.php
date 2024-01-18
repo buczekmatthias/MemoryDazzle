@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('icon')->nullable();
-            $table->string('baner')->nullable();
             $table->foreignUuid('user_id')->constrained('users');
             $table->timestamps();
         });

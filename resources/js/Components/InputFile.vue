@@ -25,7 +25,7 @@
         <span class="text-xl font-semibold">{{ label }}</span>
         <span v-if="required === false">(Optional)</span>
         <span
-            class="text-red-600 text-lg mt-2"
+            class="text-red-600 text-lg mt-2 text-center"
             v-if="errors.length > 0 && !hasFile"
             >{{ errors[0] }}</span
         >

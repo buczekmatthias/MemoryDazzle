@@ -12,7 +12,6 @@ class Group extends Model
     protected $fillable = [
         'name',
         'icon',
-        'baner'
     ];
 
     public function owner()

@@ -30,7 +30,10 @@
                         >Following</Link
                     >
                 </div>
-                <div class="" v-if="Object.keys(list.users.data).length > 0">
+                <div
+                    class="flex flex-col gap-2"
+                    v-if="Object.keys(list.users.data).length > 0"
+                >
                     <div
                         class="flex items-center justify-between"
                         v-for="(user, i) in list.users.data"

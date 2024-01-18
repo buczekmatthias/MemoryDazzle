@@ -194,17 +194,16 @@ class UserServices
         $user = auth()->user();
 
         DB::transaction(function () use ($user) {
-            $user->following()->delete();
-            $user->followedBy()->delete();
-            $user->sentFollowRequests()->delete();
-            $user->receivedFollowRequests()->delete();
+            $user->following()->detach();
+            $user->followedBy()->detach();
+            $user->sentFollowRequests()->detach();
+            $user->receivedFollowRequests()->detach();
             foreach ($user->groups as $group) {
-                foreach ($group->posts as $post) {
-                    PostServices::deletePost($post);
-                }
-
-                $group->delete();
+                GroupServices::deleteGroup($group);
             }
+            $user->reactions()->delete();
+            $user->comments()->delete();
+
             if ($user->avatar) {
                 self::deleteAvatar($user->id);
             }

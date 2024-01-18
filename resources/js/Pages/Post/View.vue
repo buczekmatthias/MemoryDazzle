@@ -12,7 +12,7 @@
                 <div class="flex items-center justify-between p-3">
                     <UserCard :user="post.group.owner" />
                     <Link
-                        href=""
+                        :href="`/groups/${post.group.id}`"
                         class="text-indigo-700 font-semibold"
                         :class="
                             $page.props.user.username ===

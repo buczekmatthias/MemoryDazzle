@@ -27,7 +27,10 @@
                 <GroupSelect v-model="form.group_id" :groups="groups" />
                 <div class="flex flex-col">
                     <p class="text-xl font-semibold">Files</p>
-                    <p class="text-sm text-gray-400 mt-1 mb-3">
+                    <p
+                        class="text-sm text-gray-400 mt-1 mb-3"
+                        v-if="form.files.length > 0"
+                    >
                         If you accidentally deleted file from list, reload page
                     </p>
                     <div class="flex flex-col" v-if="form.files.length > 0">

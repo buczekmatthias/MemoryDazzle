@@ -4,7 +4,7 @@
             <p class="text-3xl font-semibold">Edit profile</p>
             <form
                 @submit.prevent="handleFormSubmit"
-                class="flex flex-col gap-4 bg-white rounded-xl shadow-md px-3 py-5"
+                class="flex flex-col gap-4 bg-white rounded-xl shadow-md p-3"
             >
                 <div class="flex flex-col gap-2">
                     <label
@@ -107,6 +107,22 @@
                 <ButtonComponent :disabled="form.processing">
                     Update profile
                 </ButtonComponent>
+                <div
+                    class="border-t border-solid border-t-gray-300 mt-3 pt-3 flex flex-col gap-2"
+                >
+                    <p class="text-3xl font-semibold">Delete profile</p>
+                    <p class="text-sm text-gray-500">
+                        This process can't be undone. Be sure if you want to do
+                        this action.
+                    </p>
+                    <ButtonComponent
+                        @click="handleDeleteAccountButton"
+                        type="button"
+                        classes="bg-red-600 w-full hover:bg-red-700 mt-3"
+                    >
+                        Delete
+                    </ButtonComponent>
+                </div>
             </form>
         </div>
     </AppLayout>
@@ -114,7 +130,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { router, useForm } from "@inertiajs/vue3";
 import AppLayout from "../../Layouts/AppLayout.vue";
 import InputBox from "../../Components/InputBox.vue";
 import InputFile from "../../Components/InputFile.vue";
@@ -148,6 +164,10 @@ const handleFormSubmit = () => {
             form.reset();
         },
     });
+};
+
+const handleDeleteAccountButton = () => {
+    router.delete("/delete-profile");
 };
 </script>
 

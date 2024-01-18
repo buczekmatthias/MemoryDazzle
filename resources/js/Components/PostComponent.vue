@@ -3,15 +3,22 @@
         class="flex flex-col rounded-lg bg-white"
         :class="hasShadow ? 'shadow-md' : 'border border-solid border-gray-300'"
     >
-        <div class="flex justify-between items-center p-3">
+        <div class="flex justify-between items-center p-3" v-if="withHeader">
             <UserCard :user="post.group.owner" />
-            <Link href="" class="text-indigo-700 font-semibold"
+            <Link
+                :href="`/groups/${post.group.id}`"
+                class="text-indigo-700 font-semibold"
                 >#{{ post.group.name }} {{ post.group.icon }}</Link
             >
         </div>
         <Link
             :href="`/posts/${post.id}`"
-            class="flex flex-col gap-2 border-y border-solid border-y-gray-200"
+            class="flex flex-col gap-2 border-solid"
+            :class="
+                withHeader
+                    ? 'border-y border-y-gray-200'
+                    : 'border-b border-b-gray-200'
+            "
         >
             <div class="flex justify-between">
                 <p class="text-gray-400 text-sm mx-3 mt-3">
@@ -63,6 +70,10 @@ import UserCard from "./UserCard.vue";
 defineProps({
     post: Object,
     hasShadow: {
+        type: Boolean,
+        default: true,
+    },
+    withHeader: {
         type: Boolean,
         default: true,
     },

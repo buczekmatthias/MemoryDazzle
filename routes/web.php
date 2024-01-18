@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SecurityController;
@@ -54,6 +55,14 @@ Route::middleware('auth')->group(function () {
     Route::controller(ReactionController::class)->name('reactions.')->prefix('/reactions')->group(function () {
         Route::post('/add', 'addReaction')->name('add');
         Route::delete('/{post_id}/{reaction_name}/remove', 'removeReaction')->name('remove');
+    });
+
+    Route::controller(GroupController::class)->name('groups.')->prefix('/groups')->group(function () {
+        Route::post('/create', 'createGroup')->name('create');
+        Route::get('/{group}', 'view')->name('view');
+        Route::get("/{group}/edit", 'edit')->name('edit');
+        Route::post("/{group}/edit", 'handleEdit');
+        Route::delete("/{group}/delete", 'handleDelete');
     });
 
     Route::controller(UserController::class)->name('user.')->group(function () {

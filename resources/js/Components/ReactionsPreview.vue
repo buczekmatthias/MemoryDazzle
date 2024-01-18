@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="px-3 py-2 flex flex-col gap-4 h-full overflow-auto">
-                <p class="sticky -top-2 py-2 px-1 bg-white text-gray-500">
+                <p class="sticky -top-2 py-2 px-1 -mb-3 bg-white text-gray-500">
                     {{ pickedReactions.reaction_name }}
                 </p>
                 <a

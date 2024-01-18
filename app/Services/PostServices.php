@@ -57,7 +57,21 @@ class PostServices
             ->withCount('comments')
             ->orderBy('posts.created_at', 'DESC')
             ->paginate(25)
-            ->onEachSide(2)
+            ->through(function ($item) {
+                $itemAsArray = $item->toArray();
+                $itemAsArray['files'] = FilesServices::getFilesGroupedByType($item);
+                $itemAsArray['reactions'] = ReactionServices::getPostReactions($item);
+                return $itemAsArray;
+            });
+    }
+
+    public static function getGroupPosts(string $group_id): LengthAwarePaginator
+    {
+        return Post::where('group_id', $group_id)
+            ->select('id', 'content', 'group_id', 'created_at')
+            ->withCount('comments')
+            ->orderBy('posts.created_at', 'DESC')
+            ->paginate(25)
             ->through(function ($item) {
                 $itemAsArray = $item->toArray();
                 $itemAsArray['files'] = FilesServices::getFilesGroupedByType($item);

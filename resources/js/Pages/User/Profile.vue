@@ -1,5 +1,3 @@
-<!-- TODO: Groups management + groups displaying -->
-
 <template>
     <AppLayout>
         <div class="flex flex-col gap-4 p-3">
@@ -156,25 +154,75 @@
                         class="flex flex-col gap-3"
                         v-else-if="tab === 'groups'"
                     >
+                        <form
+                            @submit.prevent="handleFormSubmit"
+                            class="relative grid grid-cols-[1fr_6fr_2fr] gap-1"
+                        >
+                            <p
+                                class="border border-solid border-gray-300 rounded-md p-2 outline-none focus:border-gray-500 cursor-pointer flex items-center justify-center text-xl leading-[0]"
+                                @click="showPicker = !showPicker"
+                            >
+                                {{ createForm.icon }}
+                            </p>
+                            <input
+                                v-model="createForm.name"
+                                placeholder="Group name"
+                                class="border border-solid border-gray-300 rounded-md p-2 outline-none focus:border-gray-500"
+                            />
+                            <EmojiPicker
+                                :lazy="true"
+                                class="picker absolute bottom-[115%]"
+                                :native="true"
+                                :disable-skin-tones="true"
+                                :hide-group-names="true"
+                                v-if="showPicker"
+                                @select="handleIconPick"
+                            />
+                            <ButtonComponent> Create </ButtonComponent>
+                            <p
+                                class="col-span-full text-sm text-red-600"
+                                v-if="createForm.errors.validation"
+                            >
+                                {{ createForm.errors.validation }}
+                            </p>
+                        </form>
                         <div
                             v-for="(group, i) in content"
                             :key="i"
-                            class="grid grid-cols-[1fr_auto] gap-4 items-center border border-solid border-gray-300 rounded-lg p-3 duration-300 hover:bg-indigo-700/10"
+                            class="grid grid-cols-[1fr_auto] items-center border border-solid border-gray-300 rounded-lg p-3 duration-300 hover:bg-indigo-700/10"
+                            :class="
+                                group.owner.username ===
+                                    $page.props.user.username &&
+                                group.name !== 'General'
+                                    ? 'gap-4'
+                                    : ''
+                            "
                         >
                             <Link
-                                href=""
-                                class="flex justify-between pr-4 border-r border-solid border-r-gray-300"
+                                :href="`/groups/${group.id}`"
+                                class="flex justify-between"
+                                :class="
+                                    group.owner.username ===
+                                        $page.props.user.username &&
+                                    group.name !== 'General'
+                                        ? 'pr-4 border-r border-solid border-r-gray-300'
+                                        : ''
+                                "
                             >
                                 <p>{{ group.icon }} {{ group.name }}</p>
                                 <p>{{ group.posts_count }} posts</p>
                             </Link>
-                            <EditOutlined
+                            <Link
+                                :href="`/groups/${group.id}/edit`"
                                 class="text-lg leading-[0] text-indigo-700 cursor-pointer"
                                 v-if="
                                     group.owner.username ===
-                                    $page.props.user.username
+                                        $page.props.user.username &&
+                                    group.name !== 'General'
                                 "
-                            />
+                            >
+                                <EditOutlined />
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -189,13 +237,15 @@
 
 <script setup>
 import { ref } from "vue";
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, useForm } from "@inertiajs/vue3";
 import { EditOutlined, UserOutlined } from "@ant-design/icons-vue";
 import AppLayout from "../../Layouts/AppLayout.vue";
 import ButtonComponent from "../../Components/ButtonComponent.vue";
 import Pagination from "../../components/Pagination.vue";
 import PostComponent from "../../Components/PostComponent.vue";
 import CommentComponent from "../../Components/CommentComponent.vue";
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 
 const props = defineProps({
     profile: Object,
@@ -206,6 +256,13 @@ const props = defineProps({
 });
 
 const contentSize = ref(Object.keys(props.content?.data || {}).length);
+
+const showPicker = ref(false);
+
+const createForm = useForm({
+    icon: "💾",
+    name: "",
+});
 
 const handleFollowButton = () => {
     const options = ref({});
@@ -220,5 +277,18 @@ const handleFollowButton = () => {
     }
 
     router.post(`/follow/${props.profile.username}`, options.value);
+};
+
+const handleIconPick = (e) => {
+    showPicker.value = false;
+    createForm.icon = e["i"];
+};
+
+const handleFormSubmit = () => {
+    createForm.post("/groups/create", {
+        onSuccess: () => {
+            createForm.reset();
+        },
+    });
 };
 </script>
