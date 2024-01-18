@@ -57,6 +57,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::controller(UserController::class)->name('user.')->group(function () {
+        Route::get('/edit-profile', 'profileEdit')->name('profile.edit');
+        Route::post('/edit-profile', 'handleProfileEdit');
+        Route::delete('/delete-profile', 'deleteProfile');
         Route::get('/users', 'usersList')->name('users');
         Route::post('/follow/{user:username}', 'handleFollow')->name('follow');
         Route::prefix('/requests')->name('requests')->group(function () {

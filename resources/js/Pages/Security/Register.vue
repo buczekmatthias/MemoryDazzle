@@ -41,6 +41,7 @@
                 accepted="image/jpeg,image/svg,image/png"
                 v-model="form.avatar"
                 :errors="form.errors.avatar"
+                :hasFile="form.avatar !== null"
             />
             <ButtonComponent :disabled="form.processing"
                 >Create account</ButtonComponent

@@ -1,4 +1,4 @@
-<!-- TODO: Profile & groups management + groups displaying -->
+<!-- TODO: Groups management + groups displaying -->
 
 <template>
     <AppLayout>
@@ -31,15 +31,15 @@
                         >
                             @{{ profile.username }}
                         </p>
-                        <ButtonComponent
+                        <Link
+                            href="/edit-profile"
                             class="my-3"
                             v-if="
                                 profile.username === $page.props.user.username
                             "
-                            @click="toggleEditProfileModal"
                         >
-                            Edit profile
-                        </ButtonComponent>
+                            <ButtonComponent> Edit profile </ButtonComponent>
+                        </Link>
                         <ButtonComponent
                             class="my-3"
                             :class="
@@ -197,8 +197,6 @@ import Pagination from "../../components/Pagination.vue";
 import PostComponent from "../../Components/PostComponent.vue";
 import CommentComponent from "../../Components/CommentComponent.vue";
 
-const showEditModal = ref(false);
-
 const props = defineProps({
     profile: Object,
     content: Object,
@@ -208,10 +206,6 @@ const props = defineProps({
 });
 
 const contentSize = ref(Object.keys(props.content?.data || {}).length);
-
-const toggleEditProfileModal = () => {
-    showEditModal.value = !showEditModal.value;
-};
 
 const handleFollowButton = () => {
     const options = ref({});

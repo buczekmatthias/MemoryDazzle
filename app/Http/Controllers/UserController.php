@@ -43,4 +43,21 @@ class UserController extends Controller
             'list' => UserServices::getFollowingList($user, $request->get('tab', 'following'))
         ]);
     }
+
+    public function profileEdit()
+    {
+        return inertia('User/Edit', [
+            'profile' => auth()->user()->only('displayname', 'username', 'email', 'avatar', 'visibility')
+        ]);
+    }
+
+    public function handleProfileEdit(Request $request)
+    {
+        return UserServices::editProfile($request);
+    }
+
+    public function deleteProfile()
+    {
+        return UserServices::deleteProfile();
+    }
 }

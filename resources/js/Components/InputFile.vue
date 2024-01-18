@@ -6,7 +6,7 @@
                 errors.length > 0
                     ? 'border-red-600 bg-red-600 text-red-600'
                     : '',
-                hasImage
+                hasFile
                     ? 'border-emerald-600 bg-emerald-600 text-emerald-600'
                     : '',
                 'hover:border-indigo-700 hover:text-indigo-700 hover:bg-indigo-700'
@@ -26,10 +26,10 @@
         <span v-if="required === false">(Optional)</span>
         <span
             class="text-red-600 text-lg mt-2"
-            v-if="errors.length > 0 && !hasImage"
+            v-if="errors.length > 0 && !hasFile"
             >{{ errors[0] }}</span
         >
-        <span v-if="hasImage" class="text-lg mt-2"
+        <span v-if="hasFile" class="text-lg mt-2"
             >{{
                 $refs.inp.files.length > 1
                     ? `${$refs.inp.files.length} files`
@@ -53,17 +53,15 @@ const props = defineProps({
         type: Number,
         default: 1,
     },
+    hasFile: { type: Boolean, default: false },
 });
 
 const inp = ref(null);
-
-const hasImage = ref(false);
 
 const emit = defineEmits(["update:modelValue"]);
 
 const handleFileChange = (e) => {
     if (inp.value.files.length <= props.limit) {
-        hasImage.value = e.target.files.length > 0;
         emit(
             "update:modelValue",
             props.limit === 1 ? e.target.files[0] : e.target.files

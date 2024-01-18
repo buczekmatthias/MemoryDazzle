@@ -33,6 +33,7 @@
                     :errors="form.errors.files"
                     :limit="4"
                     v-model="form.files"
+                    :hasFile="form.files?.length > 0"
                 />
             </div>
             <ButtonComponent classes="px-5 py-2" :disabled="form.processing">

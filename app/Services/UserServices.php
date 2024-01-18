@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class UserServices
 {
@@ -61,7 +64,7 @@ class UserServices
 
     public static function deleteAvatar(string $id): void
     {
-        FilesServices::deleteFile(['jpeg', 'png', 'svg'], "public/{$id}", "pfp");
+        FilesServices::deleteFile(['jpeg', 'png', 'svg', 'jpg'], "public/{$id}", "pfp");
     }
 
     public static function handleFollow(User $user): RedirectResponse
@@ -99,20 +102,26 @@ class UserServices
 
     public static function getListOfRequests(string $tab)
     {
+        /** @var User $user */
+        $user = auth()->user();
+
         if ($tab === 'received') {
-            return auth()->user()->receivedFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
+            return $user->receivedFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
         } else if ($tab === 'sent') {
-            return auth()->user()->sentFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
+            return $user->sentFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
         }
     }
 
     public static function handleRequest(string $action, User $user): RedirectResponse
     {
+        /** @var User $user */
+        $user = auth()->user();
+
         if ($action === 'accept') {
-            auth()->user()->followedBy()->attach($user->id);
-            auth()->user()->receivedFollowRequests()->where('target_id', $user->id)->detach();
+            $user->followedBy()->attach($user->id);
+            $user->receivedFollowRequests()->where('target_id', $user->id)->detach();
         } else if ($action === 'refuse') {
-            auth()->user()->receivedFollowRequests()->where('target_id', $user->id)->detach();
+            $user->receivedFollowRequests()->where('target_id', $user->id)->detach();
         }
 
         return back();
@@ -140,5 +149,73 @@ class UserServices
         }
 
         return $list;
+    }
+
+    public static function editProfile(Request $request)
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $valid = $request->validate([
+            'displayname' => 'string|nullable',
+            'username' => "required|string|unique:users,username,{$user->username},username",
+            'email' => "required|email|unique:users,email,{$user->email},email",
+            'visibility' => 'required|string|in:private,public',
+            'only_delete_avatar' => 'bool',
+            'avatar' => 'file|mimetypes:image/jpeg,image/png,image/svg|max:2500|nullable'
+        ]);
+
+        if ($valid) {
+            $user->displayname = $valid['displayname'];
+            $user->username = $valid['username'];
+            $user->email = $valid['email'];
+            $user->visibility = $valid['visibility'];
+
+            if ($valid['only_delete_avatar']) {
+                self::deleteAvatar($user->id);
+                $user->avatar = null;
+            }
+
+            if ($valid['avatar']) {
+                $user->avatar = self::uploadAvatar($valid['avatar'], $user->id);
+            }
+
+            $user->save();
+
+            return back();
+        }
+
+        return back()->withErrors($valid);
+    }
+
+    public static function deleteProfile()
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        DB::transaction(function () use ($user) {
+            $user->following()->delete();
+            $user->followedBy()->delete();
+            $user->sentFollowRequests()->delete();
+            $user->receivedFollowRequests()->delete();
+            foreach ($user->groups as $group) {
+                foreach ($group->posts as $post) {
+                    PostServices::deletePost($post);
+                }
+
+                $group->delete();
+            }
+            if ($user->avatar) {
+                self::deleteAvatar($user->id);
+            }
+
+            if (Storage::directoryExists('public/' . $user->id)) {
+                Storage::deleteDirectory("public/" . $user->id);
+            }
+
+            $user->delete();
+        });
+
+        return redirect()->route('security.login', status: 303);
     }
 }

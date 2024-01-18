@@ -25,6 +25,7 @@
                 :href="`/download/${file.id}`"
                 target="_blank"
                 class="bg-emerald-600 text-white p-4 rounded-full text-2xl leading-[0]"
+                v-if="withDownload"
             >
                 <DownloadOutlined />
             </a>
@@ -37,6 +38,7 @@ import { CloseOutlined, DownloadOutlined } from "@ant-design/icons-vue";
 
 const props = defineProps({
     file: Object,
+    withDownload: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(["closePreview"]);

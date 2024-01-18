@@ -13,6 +13,7 @@
             :required="required"
             :id="id"
             :placeholder="placeholder || label"
+            v-model="inputValue"
             class="border border-solid border-gray-300 rounded-md p-2 outline-none focus:border-gray-500"
             :class="[
                 errors.length > 0
@@ -32,9 +33,12 @@
 </template>
 
 <script setup>
-defineProps({
+import { ref } from "vue";
+
+const props = defineProps({
     label: String,
     id: String,
+    value: { type: String, default: "" },
     placeholder: { type: String, default: "" },
     required: { type: Boolean, default: true },
     type: { type: String, default: "text" },
@@ -42,9 +46,11 @@ defineProps({
     readonly: { type: Boolean, default: false },
 });
 
+const inputValue = ref(props.value);
+
 const emit = defineEmits(["update:modelValue"]);
 
 const handleInputValueChange = (e) => {
-    emit("update:modelValue", e.target.value);
+    emit("update:modelValue", inputValue.value);
 };
 </script>
