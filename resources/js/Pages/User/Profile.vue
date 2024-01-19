@@ -1,11 +1,13 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col gap-4 p-3">
+        <div class="flex flex-col gap-4 p-3 w-full max-w-6xl mx-auto">
             <p class="text-3xl font-semibold">User profile</p>
             <div
                 class="flex flex-col gap-4 bg-white rounded-xl shadow-md px-3 py-5"
             >
-                <div class="flex flex-col items-center gap-4">
+                <div
+                    class="flex flex-col items-center gap-4 lg:flex-row lg:justify-center"
+                >
                     <img
                         :src="profile.avatar"
                         alt="User avatar"
@@ -52,12 +54,12 @@
                         </ButtonComponent>
                     </div>
                     <div
-                        class="flex items-center divide-x [&>*]:px-7"
+                        class="flex items-center divide-x [&>*]:px-7 lg:ml-60 lg:flex-col lg:divide-x-0 lg:gap-4"
                         v-if="hasAccess"
                     >
                         <Link
                             :href="`/${profile.username}/followers?tab=followers`"
-                            class="flex flex-col gap-2 items-center"
+                            class="flex flex-col gap-2 items-center lg:flex-row lg:gap-5"
                         >
                             <p class="font-semibold">Followers</p>
                             <p class="font-light">
@@ -66,7 +68,7 @@
                         </Link>
                         <Link
                             :href="`/${profile.username}/followers?tab=following`"
-                            class="flex flex-col gap-2 items-center"
+                            class="flex flex-col gap-2 items-center lg:flex-row lg:gap-5"
                         >
                             <p class="font-semibold">Following</p>
                             <p class="font-light">
@@ -75,13 +77,17 @@
                         </Link>
                     </div>
                     <div class="flex items-center divide-x [&>*]:px-7" v-else>
-                        <div class="flex flex-col gap-2 items-center">
+                        <div
+                            class="flex flex-col gap-2 items-center lg:flex-row lg:gap-5"
+                        >
                             <p class="font-semibold">Followers</p>
                             <p class="font-light">
                                 {{ profile.followed_by_count }}
                             </p>
                         </div>
-                        <div class="flex flex-col gap-2 items-center">
+                        <div
+                            class="flex flex-col gap-2 items-center lg:flex-row lg:gap-5"
+                        >
                             <p class="font-semibold">Following</p>
                             <p class="font-light">
                                 {{ profile.following_count }}

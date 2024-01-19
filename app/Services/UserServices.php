@@ -86,17 +86,25 @@ class UserServices
         return back();
     }
 
-    public static function getListOfUsers(): array
+    public static function getListOfUsers(string $q): array
     {
         return [
-            'users' => User::where('username', '<>', auth()->user()->username)->select('id', 'username', 'displayname', 'avatar', 'visibility')->orderBy('username')->paginate(50)->through(function ($user) {
-                $userAsArray = $user->toArray();
+            'users' => User::where([
+                ['username', '<>', auth()->user()->username],
+                ['username', 'LIKE', "%{$q}%"]
+            ])
+                ->select('id', 'username', 'displayname', 'avatar', 'visibility')
+                ->orderBy('username')
+                ->paginate(50)
+                ->through(function ($user) {
+                    $userAsArray = $user->toArray();
 
-                $userAsArray['status'] = $user->followingStatus(auth()->user()->id);
-                $userAsArray['isPrivate'] = $user->isPrivateProfile();
+                    $userAsArray['status'] = $user->followingStatus(auth()->user()->id);
+                    $userAsArray['isPrivate'] = $user->isPrivateProfile();
 
-                return $userAsArray;
-            })
+                    return $userAsArray;
+                }),
+            'q' => $q
         ];
     }
 

@@ -19,9 +19,9 @@ class UserController extends Controller
         return UserServices::handleFollow($user);
     }
 
-    public function usersList()
+    public function usersList(Request $request)
     {
-        return inertia('User/List', UserServices::getListOfUsers());
+        return inertia('User/List', UserServices::getListOfUsers((string)$request->get('q', '')));
     }
 
     public function listFollowRequests(Request $request)

@@ -1,6 +1,9 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col gap-4 p-3" v-if="post">
+        <div
+            class="flex flex-col gap-4 p-3 w-full max-w-6xl mx-auto"
+            v-if="post"
+        >
             <div class="flex items-center gap-4">
                 <LeftOutlined
                     class="text-xl leading-none"
@@ -14,12 +17,6 @@
                     <Link
                         :href="`/groups/${post.group.id}`"
                         class="text-indigo-700 font-semibold"
-                        :class="
-                            $page.props.user.username ===
-                            post.group.owner.username
-                                ? 'mr-3'
-                                : ''
-                        "
                         >#{{ post.group.name }} {{ post.group.icon }}</Link
                     >
                 </div>
@@ -98,7 +95,7 @@
             </div>
         </div>
         <div
-            class="flex flex-col items-center shadow-md rounded-lg bg-white p-4 py-6 my-auto mx-4"
+            class="flex flex-col items-center shadow-md rounded-lg bg-white p-4 py-6 my-auto w-full max-w-6xl mx-auto"
             v-else
         >
             <p class="text-4xl font-semibold">Post not found</p>

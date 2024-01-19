@@ -1,6 +1,6 @@
 <template>
     <AppLayout>
-        <div class="p-3 flex flex-col gap-4">
+        <div class="p-3 flex flex-col gap-4 w-full max-w-6xl mx-auto">
             <Link :href="`/posts/${post.id}`" class="flex items-center gap-3">
                 <LeftOutlined class="text-xl leading-none" />
                 <p class="text-3xl font-semibold">Cancel edit</p>

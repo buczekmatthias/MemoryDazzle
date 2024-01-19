@@ -1,6 +1,6 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col gap-4 p-3">
+        <div class="flex flex-col gap-4 p-3 w-full max-w-6xl mx-auto">
             <p class="text-3xl font-semibold">
                 <span v-if="list.tab === 'followers'">Followers</span>
                 <span v-else>Following</span>

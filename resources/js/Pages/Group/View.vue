@@ -1,6 +1,6 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col gap-4 p-3">
+        <div class="flex flex-col gap-4 p-3 w-full max-w-6xl mx-auto">
             <p class="text-3xl font-semibold">Group content</p>
             <div class="flex flex-col gap-4 bg-white rounded-xl shadow-md p-3">
                 <div class="grid grid-cols-[1fr_auto] gap-2">

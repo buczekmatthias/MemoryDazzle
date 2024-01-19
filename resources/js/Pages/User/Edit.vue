@@ -1,6 +1,6 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col gap-4 p-3">
+        <div class="flex flex-col gap-4 p-3 w-full max-w-6xl mx-auto">
             <p class="text-3xl font-semibold">Edit profile</p>
             <form
                 @submit.prevent="handleFormSubmit"
