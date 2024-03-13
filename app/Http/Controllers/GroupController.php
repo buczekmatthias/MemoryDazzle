@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GroupRequest;
 use App\Models\Group;
 use App\Services\GroupServices;
-use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {
     public function view(Group $group)
     {
-        return inertia('Group/View', ['group' => GroupServices::getGroupData($group)]);
+        return inertia('Group/View', [
+            'group' => GroupServices::getGroupData($group)
+        ]);
     }
 
     public function edit(Group $group)
@@ -20,21 +22,32 @@ class GroupController extends Controller
             return back();
         }
 
-        return inertia('Group/Edit', ['group' => GroupServices::getGroupEditContent($group)]);
+        return inertia('Group/Edit', [
+            'group' => $group->only('id', 'name', 'icon')
+        ]);
     }
 
-    public function handleEdit(Group $group, Request $request)
+    public function handleEdit(Group $group, GroupRequest $request)
     {
-        return GroupServices::updateGroup($group, $request);
+        $group->update($request->validated());
+
+        return back();
     }
 
-    public function createGroup(Request $request)
+    public function createGroup(GroupRequest $request)
     {
-        return GroupServices::createGroup($request);
+        auth()->user()->groups()->create($request->validated());
+
+        return back();
     }
 
     public function handleDelete(Group $group)
     {
-        return GroupServices::handleDeleteGroup($group);
+        GroupServices::deleteGroup($group);
+
+        return redirect()->route('user.profile', [
+            'user' => auth()->user()->username,
+            'tab' => 'groups'
+        ], 303);
     }
 }

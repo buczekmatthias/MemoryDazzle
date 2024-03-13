@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::controller(ReactionController::class)->name('reactions.')->prefix('/reactions')->group(function () {
-        Route::post('/add', 'addReaction')->name('add');
+        Route::post('/{post}/add', 'addReaction')->name('add');
         Route::delete('/{post_id}/{reaction_name}/remove', 'removeReaction')->name('remove');
     });
 
@@ -73,7 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/follow/{user:username}', 'handleFollow')->name('follow');
         Route::prefix('/requests')->name('requests')->group(function () {
             Route::get('/', 'listFollowRequests')->name('list');
-            Route::post('/{action}/{user:username}', 'handleFollowRequests')->name('handle');
+            Route::post('/{action}/{user}', 'handleFollowRequests')->name('handle');
         });
         Route::get('/{user:username}', 'profile')->name('profile');
         Route::get('/{user:username}/followers', 'followers')->name('followers');

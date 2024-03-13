@@ -3,19 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CommentRequest;
 use App\Models\Comment;
 use App\Services\CommentServices;
-use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
     public function deleteComment(Comment $comment)
     {
-        return CommentServices::deleteComment($comment);
+        CommentServices::deleteComment($comment);
+
+        return back(303);
     }
 
-    public function createComment(Request $request)
+    public function createComment(CommentRequest $request)
     {
-        return CommentServices::createComment($request);
+        CommentServices::createComment($request->validated());
+
+        return back();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Http\Request;
@@ -16,7 +17,9 @@ class UserController extends Controller
 
     public function handleFollow(User $user)
     {
-        return UserServices::handleFollow($user);
+        UserServices::handleFollow($user);
+
+        return back();
     }
 
     public function usersList(Request $request)
@@ -34,7 +37,9 @@ class UserController extends Controller
 
     public function handleFollowRequests(string $action, User $user)
     {
-        return UserServices::handleRequest($action, $user);
+        UserServices::handleRequest($action, $user->id);
+
+        return back();
     }
 
     public function followers(User $user, Request $request)
@@ -51,13 +56,21 @@ class UserController extends Controller
         ]);
     }
 
-    public function handleProfileEdit(Request $request)
+    public function handleProfileEdit(UserUpdateRequest $userRequest)
     {
-        return UserServices::editProfile($request);
+        UserServices::editProfile(
+            $userRequest->except('only_delete_avatar', 'avatar'),
+            $userRequest->only('only_delete_avatar')['only_delete_avatar'],
+            $userRequest->only('avatar')['avatar']
+        );
+
+        return back();
     }
 
     public function deleteProfile()
     {
-        return UserServices::deleteProfile();
+        UserServices::deleteProfile();
+
+        return redirect()->route('security.login', status: 303);
     }
 }

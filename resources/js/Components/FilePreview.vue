@@ -1,17 +1,17 @@
 <template>
     <div
-        class="fixed top-0 left-0 z-30 bg-gray-800/80 h-screen w-full flex flex-col gap-4 py-4 items-center"
+        class="fixed top-0 left-0 z-50 bg-gray-800/80 h-screen w-full flex flex-col gap-4 py-4 items-center"
         id="file-preview"
     >
         <img
             v-if="file.type === 'image'"
-            :src="file.filename"
+            :src="file.path"
             alt="Preview of image"
             class="preview-file"
         />
         <video
             v-else
-            :src="file.filename"
+            :src="file.path"
             controls
             autoplay
             class="preview-file"

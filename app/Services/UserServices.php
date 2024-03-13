@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,7 +14,9 @@ class UserServices
     {
         $currentUserId = auth()->user()->id;
 
-        $hasAccess = !($user->isPrivateProfile() && !$user->followedBy->contains($currentUserId) && $currentUserId !== $user->id);
+        $isUserFollowedByCurrentUser = $user->followedBy()->where('follower_id', $currentUserId)->exists();
+
+        $hasAccess = $currentUserId === $user->id || !$user->isPrivateProfile() || $isUserFollowedByCurrentUser;
 
         $content = null;
 
@@ -28,22 +30,26 @@ class UserServices
             }
         }
 
-        return [
+        $userData = $user->where('username', $user->username)
+            ->select('displayname', 'username', 'avatar', 'created_at');
+
+        if ($hasAccess) {
+            $userData->withCount('comments', 'posts', 'following', 'followedBy', 'groups');
+        } else {
+            $userData->withCount('following', 'followedBy');
+        }
+
+        return            [
             'tab' => $tab,
             'hasAccess' => $hasAccess,
-            'status' => $user->followingStatus($currentUserId),
             'profile' => array_merge(
-                $user
-                    ->where('username', $user->username)
-                    ->select('displayname', 'username', 'avatar', 'created_at')
-                    ->withCount('comments', 'posts', 'following', 'followedBy', 'groups')
-                    ->first()
-                    ->toArray(),
+                $userData->first()->toArray(),
                 [
                     'isPrivate' => $user->isPrivateProfile()
                 ]
             ),
             'content' => $content,
+            'status' => $isUserFollowedByCurrentUser ? 'Following' : $user->followingStatus($currentUserId)
         ];
     }
 
@@ -67,14 +73,14 @@ class UserServices
         FilesServices::deleteFile(['jpeg', 'png', 'svg', 'jpg'], "public/{$id}", "pfp");
     }
 
-    public static function handleFollow(User $user): RedirectResponse
+    public static function handleFollow(User $user): void
     {
         $currentUserId = auth()->user()->id;
 
-        if ($user->followedBy->contains($currentUserId)) {
-            $user->followedBy()->where('follower_id', $currentUserId)->detach();
-        } else if ($user->receivedFollowRequests->contains($currentUserId)) {
-            $user->receivedFollowRequests()->where('target_id', $currentUserId)->detach();
+        if ($user->followedBy()->where('follower_id', $currentUserId)->exists()) {
+            $user->followedBy()->detach($currentUserId);
+        } else if ($user->receivedFollowRequests()->where('sender_id', $currentUserId)->exists()) {
+            $user->receivedFollowRequests()->detach($currentUserId);
         } else {
             if ($user->isPrivateProfile()) {
                 $user->receivedFollowRequests()->attach($currentUserId);
@@ -82,8 +88,6 @@ class UserServices
                 $user->followedBy()->attach($currentUserId);
             }
         }
-
-        return back();
     }
 
     public static function getListOfUsers(string $q): array
@@ -94,12 +98,16 @@ class UserServices
                 ['username', 'LIKE', "%{$q}%"]
             ])
                 ->select('id', 'username', 'displayname', 'avatar', 'visibility')
+                ->withCount([
+                    'followedBy' => fn ($q) => $q->where('follower_id', auth()->user()->id),
+                    'following' => fn ($q) => $q->where('user_id', auth()->user()->id),
+                    'receivedFollowRequests' => fn ($q) => $q->where('sender_id', auth()->user()->id)
+                ])
                 ->orderBy('username')
                 ->paginate(50)
                 ->through(function ($user) {
                     $userAsArray = $user->toArray();
 
-                    $userAsArray['status'] = $user->followingStatus(auth()->user()->id);
                     $userAsArray['isPrivate'] = $user->isPrivateProfile();
 
                     return $userAsArray;
@@ -108,31 +116,25 @@ class UserServices
         ];
     }
 
-    public static function getListOfRequests(string $tab)
+    public static function getListOfRequests(string $tab): Collection
     {
         /** @var User $user */
         $user = auth()->user();
 
         if ($tab === 'received') {
-            return $user->receivedFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
+            return $user->receivedFollowRequests()->select('id', 'displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
         } else if ($tab === 'sent') {
-            return $user->sentFollowRequests()->select('displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
+            return $user->sentFollowRequests()->select('id', 'displayname', 'username', 'avatar')->orderBy('sent_at', 'DESC')->get();
         }
     }
 
-    public static function handleRequest(string $action, User $user): RedirectResponse
+    public static function handleRequest(string $action, string $userId): void
     {
-        /** @var User $user */
-        $user = auth()->user();
+        auth()->user()->receivedFollowRequests()->detach($userId);
 
         if ($action === 'accept') {
-            $user->followedBy()->attach($user->id);
-            $user->receivedFollowRequests()->where('target_id', $user->id)->detach();
-        } else if ($action === 'refuse') {
-            $user->receivedFollowRequests()->where('target_id', $user->id)->detach();
+            auth()->user()->followedBy()->attach($userId);
         }
-
-        return back();
     }
 
     public static function getFollowingList(User $user, string $tab): array
@@ -159,44 +161,26 @@ class UserServices
         return $list;
     }
 
-    public static function editProfile(Request $request)
+    public static function editProfile(array $data, bool $only_delete_avatar, ?UploadedFile $avatar): void
     {
         /** @var User $user */
         $user = auth()->user();
 
-        $valid = $request->validate([
-            'displayname' => 'string|nullable',
-            'username' => "required|string|unique:users,username,{$user->username},username",
-            'email' => "required|email|unique:users,email,{$user->email},email",
-            'visibility' => 'required|string|in:private,public',
-            'only_delete_avatar' => 'bool',
-            'avatar' => 'file|mimetypes:image/jpeg,image/png,image/svg|max:2500|nullable'
-        ]);
+        $user->update($data);
 
-        if ($valid) {
-            $user->displayname = $valid['displayname'];
-            $user->username = $valid['username'];
-            $user->email = $valid['email'];
-            $user->visibility = $valid['visibility'];
-
-            if ($valid['only_delete_avatar']) {
-                self::deleteAvatar($user->id);
-                $user->avatar = null;
-            }
-
-            if ($valid['avatar']) {
-                $user->avatar = self::uploadAvatar($valid['avatar'], $user->id);
-            }
-
-            $user->save();
-
-            return back();
+        if ($only_delete_avatar) {
+            self::deleteAvatar($user->id);
+            $user->avatar = null;
         }
 
-        return back()->withErrors($valid);
+        if ($avatar) {
+            $user->avatar = self::uploadAvatar($avatar, $user->id);
+        }
+
+        $user->save();
     }
 
-    public static function deleteProfile()
+    public static function deleteProfile(): void
     {
         /** @var User $user */
         $user = auth()->user();
@@ -222,7 +206,5 @@ class UserServices
 
             $user->delete();
         });
-
-        return redirect()->route('security.login', status: 303);
     }
 }

@@ -159,6 +159,7 @@ const form = useForm({
 
 const handleFormSubmit = () => {
     form.post("/edit-profile", {
+        preserveState: false,
         onSuccess: () => {
             file.value.$refs.inp.value = "";
             form.reset();

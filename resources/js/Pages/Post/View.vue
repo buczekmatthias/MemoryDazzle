@@ -54,7 +54,7 @@
                     >
                         <img
                             v-for="(img, i) in post.files.image"
-                            :src="img.filename"
+                            :src="img.path"
                             :key="i"
                             class="w-full h-full object-cover cursor-pointer"
                             @click="handleFileSelectPreview('image', img)"
@@ -66,7 +66,7 @@
                             @click="handleFileSelectPreview('video', vid)"
                         >
                             <video
-                                :src="vid.filename"
+                                :src="vid.path"
                                 class="w-full h-full object-cover"
                             ></video>
                             <PlayCircleOutlined

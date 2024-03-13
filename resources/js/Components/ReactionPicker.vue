@@ -1,7 +1,7 @@
 <template>
     <EmojiPicker
         :lazy="true"
-        class="absolute top-full"
+        class="absolute top-full z-40"
         :native="true"
         :disable-skin-tones="true"
         :hide-group-names="true"

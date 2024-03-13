@@ -40,13 +40,13 @@
                     </ButtonComponent>
                     <div class="flex gap-2" v-else>
                         <ButtonComponent
-                            @click="handleRequest('accept', request.username)"
+                            @click="handleRequest('accept', request.id)"
                         >
                             Accept
                         </ButtonComponent>
                         <ButtonComponent
                             classes="bg-transparent border border-solid border-gray-300 !text-gray-400 hover:bg-gray-100/85"
-                            @click="handleRequest('refuse', request.username)"
+                            @click="handleRequest('refuse', request.id)"
                         >
                             Refuse
                         </ButtonComponent>

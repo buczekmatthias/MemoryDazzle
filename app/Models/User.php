@@ -76,7 +76,7 @@ class User extends Authenticatable
 
     public function followingStatus(string $user_id)
     {
-        return $this->followedBy->contains($user_id) ? 'Following' : ($this->receivedFollowRequests->contains($user_id) ? 'Requested' : 'Follow');
+        return $this->receivedFollowRequests()->where('sender_id', $user_id)->exists() ? 'Requested' : 'Follow';
     }
 
     public function getAvatarAttribute()

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Post;
 use App\Models\PostFile;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FilesServices
 {
@@ -49,7 +50,7 @@ class FilesServices
             if (in_array($type, ['image', 'video'])) {
                 $groupedData[$type][] = [
                     'id' => $file->id,
-                    'filename' => $file->filename
+                    'path' => $file->getFilePath($post->author()->id, $post->id)
                 ];
             } else {
                 $groupedData['file'][] = $file->getFileContent();
@@ -79,8 +80,10 @@ class FilesServices
         return $list;
     }
 
-    public static function downloadFile(PostFile $file)
+    public static function downloadFile(PostFile $file): StreamedResponse
     {
-        return Storage::download("public/{$file->getFilePath()}");
+        $path = "public/{$file->post->author()->id}/{$file->post->id}/{$file->filename}";
+
+        return Storage::download($path);
     }
 }

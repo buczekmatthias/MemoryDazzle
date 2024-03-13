@@ -20,11 +20,6 @@ class PostFile extends Model
         return $this->belongsTo(Post::class);
     }
 
-    public function getFilenameAttribute()
-    {
-        return asset("storage/{$this->getFilePath()}");
-    }
-
     public function getSizeAttribute()
     {
         return round($this->attributes['size'] / 1000000, 2);
@@ -41,11 +36,9 @@ class PostFile extends Model
         ];
     }
 
-    public function getFilePath()
+    public function getFilePath(string $userId, string $postId)
     {
-        $post = $this->post()->first();
-
-        return "{$post->group->owner->id}/{$post->id}/{$this->getFullFileName()}";
+        return asset("storage/{$userId}/{$postId}/{$this->attributes['filename']}");
     }
 
     public function getFileExtension()
@@ -56,10 +49,5 @@ class PostFile extends Model
     public function getFileName()
     {
         return explode(".", $this->getFullFileName())[0];
-    }
-
-    public function getFullFileName()
-    {
-        return $this->attributes['filename'];
     }
 }

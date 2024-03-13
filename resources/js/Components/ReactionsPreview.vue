@@ -1,6 +1,6 @@
 <template>
     <div
-        class="fixed top-0 left-0 z-30 bg-gray-800/80 h-screen w-full flex flex-col gap-5 justify-end"
+        class="fixed top-0 left-0 z-50 bg-gray-800/80 h-screen w-full flex flex-col gap-5 justify-end"
         id="reactions-preview"
     >
         <CloseOutlined

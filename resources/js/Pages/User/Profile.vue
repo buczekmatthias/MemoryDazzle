@@ -163,6 +163,9 @@
                         <form
                             @submit.prevent="handleFormSubmit"
                             class="relative grid grid-cols-[1fr_6fr_2fr] gap-1"
+                            v-if="
+                                profile.username === $page.props.user.username
+                            "
                         >
                             <p
                                 class="border border-solid border-gray-300 rounded-md p-2 outline-none focus:border-gray-500 cursor-pointer flex items-center justify-center text-xl leading-[0]"
@@ -273,7 +276,7 @@ const createForm = useForm({
 const handleFollowButton = () => {
     const options = ref({});
 
-    if (props.status === "following" && props.profile.isPrivate) {
+    if (props.status === "Following" && props.profile.isPrivate) {
         options.value = {
             onBefore: () =>
                 confirm(

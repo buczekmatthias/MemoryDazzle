@@ -24,26 +24,20 @@
                 <p class="text-gray-400 text-sm mx-3 mt-3">
                     {{ post.created_at }}
                 </p>
-                <div
-                    class="text-gray-400 text-sm mx-3 mt-3 flex items-center gap-2"
-                >
-                    <span>Click here to open</span>
-                    <ExpandOutlined />
-                </div>
             </div>
             <p class="mx-3">{{ post.content }}</p>
-            <div class="grid grid-cols-4 gap-0.5 mt-2">
+            <div class="grid grid-cols-[1fr_auto_1fr] gap-0.5 mt-2">
                 <div class="content-items">
-                    <FileImageOutlined />
-                    <p>{{ post.files.image?.length || 0 }}</p>
-                </div>
-                <div class="content-items">
-                    <VideoCameraOutlined />
-                    <p>{{ post.files.video?.length || 0 }}</p>
+                    <p>
+                        <span>😀</span>
+                        <span class="-mx-3">😁</span>
+                        <span>😂</span>
+                    </p>
+                    <p>{{ post.reactions_count }}</p>
                 </div>
                 <div class="content-items">
                     <FileOutlined />
-                    <p>{{ post.files.file?.length || 0 }}</p>
+                    <p>{{ post.files_count }}</p>
                 </div>
                 <div class="content-items">
                     <MessageOutlined class="text-lg leading-[0]" />
@@ -51,20 +45,12 @@
                 </div>
             </div>
         </Link>
-        <ReactionsComponent :reactions="post.reactions" :post_id="post.id" />
     </div>
 </template>
 
 <script setup>
 import { Link } from "@inertiajs/vue3";
-import {
-    MessageOutlined,
-    FileOutlined,
-    VideoCameraOutlined,
-    FileImageOutlined,
-    ExpandOutlined,
-} from "@ant-design/icons-vue";
-import ReactionsComponent from "./ReactionsComponent.vue";
+import { MessageOutlined, FileOutlined } from "@ant-design/icons-vue";
 import UserCard from "./UserCard.vue";
 
 defineProps({
@@ -82,6 +68,6 @@ defineProps({
 
 <style lang="postcss">
 .content-items {
-    @apply flex items-center justify-center gap-2 p-1 bg-slate-100;
+    @apply flex items-center justify-center gap-2 p-1 !px-3 lg:!px-6 bg-slate-100;
 }
 </style>

@@ -2,12 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Comment;
 use App\Models\Group;
 use App\Models\Post;
 use Carbon\Carbon;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -54,30 +51,18 @@ class PostServices
                 'group:id,icon,name,user_id',
                 'group.owner:id,displayname,username,avatar',
             ])
-            ->withCount('comments')
+            ->withCount('comments', 'files', 'reactions')
             ->orderBy('posts.created_at', 'DESC')
-            ->paginate(25)
-            ->through(function ($item) {
-                $itemAsArray = $item->toArray();
-                $itemAsArray['files'] = FilesServices::getFilesGroupedByType($item);
-                $itemAsArray['reactions'] = ReactionServices::getPostReactions($item);
-                return $itemAsArray;
-            });
+            ->paginate(25);
     }
 
     public static function getGroupPosts(string $group_id): LengthAwarePaginator
     {
         return Post::where('group_id', $group_id)
             ->select('id', 'content', 'group_id', 'created_at')
-            ->withCount('comments')
+            ->withCount('comments', 'files', 'reactions')
             ->orderBy('posts.created_at', 'DESC')
-            ->paginate(25)
-            ->through(function ($item) {
-                $itemAsArray = $item->toArray();
-                $itemAsArray['files'] = FilesServices::getFilesGroupedByType($item);
-                $itemAsArray['reactions'] = ReactionServices::getPostReactions($item);
-                return $itemAsArray;
-            });
+            ->paginate(25);
     }
 
     public static function getPostEditContent(string $post_id): array
@@ -101,34 +86,21 @@ class PostServices
         ]);
     }
 
-    public static function storePost(Request $request): RedirectResponse
+    public static function storePost(array $data): void
     {
-        $valid = $request->validate([
-            'content' => 'required|string',
-            'group' => 'required|uuid|exists:groups,id',
-            'files' => 'nullable',
-            'files.*' => 'file|max:20000'
-        ]);
+        DB::transaction(function () use ($data) {
+            $group = Group::where('id', $data['group'])->first();
+            $post = $group->posts()->create(['content' => $data['content']]);
 
-        if ($valid) {
-            DB::transaction(function () use ($valid) {
-                $group = Group::where('id', $valid['group'])->first();
-                $post = $group->posts()->create(['content' => $valid['content']]);
-
-                if ($valid['files']) {
-                    foreach ($valid['files'] as $file) {
-                        $post->files()->create(self::storeFiles($post->id, $file));
-                    }
+            if ($data['files']) {
+                foreach ($data['files'] as $file) {
+                    $post->files()->create(self::storeFiles($post->id, $file));
                 }
-            });
-
-            return back();
-        }
-
-        return back()->withErrors(array_merge($valid, ['generic' => 'Posting failed']));
+            }
+        });
     }
 
-    public static function deletePost(Post $post): RedirectResponse
+    public static function deletePost(Post $post): void
     {
         if (auth()->user()->id === $post->author()->id) {
             FilesServices::postDeleteFiles("public/" . auth()->user()->id . "/{$post->id}");
@@ -137,39 +109,24 @@ class PostServices
             $post->comments()->delete();
             $post->delete();
         }
-
-        return redirect()->route('homepage', status: 303);
     }
 
-    public static function updatePost(Post $post, Request $request): RedirectResponse
+    public static function updatePost(Post $post, array $data): void
     {
-        $valid = $request->validate([
-            'content' => 'required|string',
-            'group_id' => 'required|uuid|exists:groups,id',
-            'files' => 'nullable',
-            'files.*' => 'array'
-        ]);
+        $post->content = $data['content'];
+        $post->group()->associate(Group::where('id', $data['group_id'])->first());
 
-        if ($valid) {
-            $post->content = $valid['content'];
-            $post->group()->associate(Group::where('id', $valid['group_id'])->first());
-
-            if (sizeof($post->files) !== $valid['files']) {
-                $newIds = array_column($valid['files'], 'id');
-                foreach ($post->files as $file) {
-                    if (!in_array($file->id, $newIds)) {
-                        FilesServices::deleteFile([$file->getFileExtension()], "public/" . auth()->user()->id . "/{$post->id}", $file->getFileName());
-                        $post->files()->where('id', $file->id)->delete();
-                    }
+        if (sizeof($post->files) !== $data['files']) {
+            $newIds = array_column($data['files'], 'id');
+            foreach ($post->files as $file) {
+                if (!in_array($file->id, $newIds)) {
+                    FilesServices::deleteFile([$file->getFileExtension()], "public/" . auth()->user()->id . "/{$post->id}", $file->getFileName());
+                    $post->files()->where('id', $file->id)->delete();
                 }
             }
-
-            $post->save();
-
-            return back();
         }
 
-        return back()->with(['error' => "Data validation failed. Please try again later"]);
+        $post->save();
     }
 
     public static function storeFiles(string $postId, object $file): array
@@ -182,7 +139,7 @@ class PostServices
         return [
             'filename' => $name,
             'size' => $file->getSize(),
-            'mimetype' => $file->getClientMimeType()
+            'mimetype' => $file->getClientMimeType(),
         ];
     }
 }

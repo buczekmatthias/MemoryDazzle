@@ -59,10 +59,9 @@ const handleAddReaction = (index) => {
     const addForm = useForm({
         reaction: entry.reaction,
         reaction_name: entry.reaction_name,
-        post_id: props.post_id,
     });
 
-    addForm.post(`/reactions/add`, {
+    addForm.post(`/reactions/${props.post_id}/add`, {
         preserveScroll: true,
     });
 };
@@ -102,10 +101,9 @@ const handlePickReaction = (reaction) => {
         const newReactionForm = useForm({
             reaction: reaction.reaction,
             reaction_name: reaction.reaction_name,
-            post_id: props.post_id,
         });
 
-        newReactionForm.post(`/reactions/add`, {
+        newReactionForm.post(`/reactions/${props.post_id}/add`, {
             preserveScroll: true,
         });
     }

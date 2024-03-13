@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Services\SecurityServices;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SecurityController extends Controller
@@ -14,9 +15,16 @@ class SecurityController extends Controller
         return inertia('Security/Login', SecurityServices::getSecurityRoutes(true));
     }
 
-    public function handleLogin(Request $request)
+    public function handleLogin(LoginRequest $request)
     {
-        return SecurityServices::loginUser($request);
+        if (Auth::attempt(
+            $request->only(['username', 'password']),
+            $request->post('remember_me')
+        )) {
+            return to_route('homepage');
+        }
+
+        return to_route('security.login')->withErrors(['username' => 'Invalid credentials', 'password' => 'Invalid credentials']);
     }
 
     public function register()
@@ -24,9 +32,11 @@ class SecurityController extends Controller
         return inertia('Security/Register', SecurityServices::getSecurityRoutes());
     }
 
-    public function handleRegister(Request $request)
+    public function handleRegister(RegisterRequest $request)
     {
-        return SecurityServices::registerUser($request);
+        SecurityServices::registerUser($request->except('avatar'), $request->only('avatar')['avatar']);
+
+        return to_route('security.login');
     }
 
     public function logout()

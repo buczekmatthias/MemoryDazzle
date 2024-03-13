@@ -31,18 +31,26 @@
                     <div
                         v-for="(user, i) in users.data"
                         :key="i"
-                        class="flex justify-between items-center even:border-y even:border-solid even:border-y-gray-300 py-4"
+                        class="flex items-center even:border-y even:border-solid even:border-y-gray-300 py-4"
                     >
-                        <UserCard :user="user" />
+                        <UserCard :user="user" class="mr-auto" />
+                        <p
+                            v-if="user.following_count === 1"
+                            class="mr-5 text-gray-400 text-sm"
+                        >
+                            Follows you
+                        </p>
                         <ButtonComponent
                             :class="
-                                ['Following', 'Requested'].includes(user.status)
+                                ['Following', 'Requested'].includes(
+                                    getFollowingStatus(user)
+                                )
                                     ? 'bg-transparent border border-solid border-gray-300 !text-gray-400 hover:bg-gray-100/85'
                                     : ''
                             "
                             @click="handleFollowButton(user)"
                         >
-                            {{ user.status }}
+                            {{ getFollowingStatus(user) }}
                         </ButtonComponent>
                     </div>
                     <Pagination :pagination="users" :shadow="false" />
@@ -87,6 +95,14 @@ const handleFollowButton = (user) => {
             preserveScroll: true,
         });
     }
+};
+
+const getFollowingStatus = (user) => {
+    return user.followed_by_count === 1
+        ? "Following"
+        : user.received_follow_requests_count === 1
+        ? "Requested"
+        : "Follow";
 };
 
 const handleSearch = () => {
